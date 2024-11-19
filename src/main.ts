@@ -2,7 +2,7 @@
 
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
-import {LoggerMiddleware} from './Middlewares/Logger.middleware';
+import {LoggerMiddleware} from './Middlewares/logger.middleware';
 
 async function bootstrap () {
 
