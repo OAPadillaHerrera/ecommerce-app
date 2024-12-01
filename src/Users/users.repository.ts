@@ -3,10 +3,18 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import { User } from "./user.interface";
 import { Login } from "./login.interface";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Users } from "./users.entity";
+import { Repository } from "typeorm";
 
 @Injectable ()
 
-export class usersRepository {
+export class UsersRepository {
+
+  constructor(
+    @InjectRepository(Users)
+    private readonly usersRepository: Repository<Users>,
+  ) {}
     
   private users: User [] = [
     { id: 1, email: "user1@example.com", name: "John Doe", password: "password123", address: "123 Main St", phone: "+34 600123456", country: "Spain", city: "Madrid" },
@@ -28,20 +36,11 @@ export class usersRepository {
 
     } 
 
-    async getById (id: number): Promise < Omit < User, "password" > | null>  {
+      async getById(userId: string): Promise<Users | null> {
+        return this.usersRepository.findOne({ where: { id: userId } });
+      }  
 
-      const user = this.users.find (user => user.id === id);
 
-      if (!user) {
-
-        return null;
-
-      }
-
-      const { password, ...userWithoutPassword} = user;
-      return userWithoutPassword;
-
-    }
 
     async createUser (user: Omit <User, "id">): Promise < {id: number} > {
 
@@ -96,7 +95,7 @@ export class usersRepository {
 
     async getPaginatedUsers (page: number = 1, limit: number = 5): Promise<{
 
-      users: Omit<User, "password">[];
+      users: Omit<User, "password"> [];
       totalUsers: number;
       totalPages: number;
       currentPage: number;
@@ -148,6 +147,33 @@ export class usersRepository {
     
     }
 
+  /* Get user by ID, By only including the ID and his purchase orders Date (`date`).*/
+  async getUserWithOrders(userId: string): Promise<any> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId }, // Search a user by ID.
+      relations: ["orders"], // Related orders are included.
+    });
+
+    if (!user) {
+      throw new Error("User not found.");
+    }
+
+    /* To build answer filtered.*/
+    const filteredUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      orders: user.orders.map((order) => ({
+        id: order.id,
+        date: order.date, // Only ID and Date are included in eeach order.
+      })),
+    };
+
+    return filteredUser;
+  }
 }
+
+
+
   
   

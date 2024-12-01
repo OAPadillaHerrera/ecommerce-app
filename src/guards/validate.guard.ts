@@ -1,6 +1,7 @@
 
 
 import { CanActivate, ExecutionContext, Injectable, BadRequestException } from "@nestjs/common";
+import { Any } from "typeorm";
 
 /* Validar solicitudes para las entidades User y Product.*/
 function validateRequest(request: Request): boolean {
@@ -156,6 +157,7 @@ function validateFieldType (field: string, value: any, entity: "User" | "Product
             price: "number",
             stock: "boolean",
             imgUrl: "string",
+            categories: "any",
 
         },
 

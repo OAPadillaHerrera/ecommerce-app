@@ -6,7 +6,7 @@ import { User } from "./user.interface";
 import { AuthGuard } from "../Auth/AuthGuard"
 import { ValidateGuard } from "src/guards/validate.guard";
 
-@Controller("users") // Cambiado a minúscula para coherencia con las solicitudes
+@Controller("users") 
 
 export class UsersController {
 
@@ -43,7 +43,7 @@ export class UsersController {
 
     getUserById (@Param("id") id: string) {
 
-        return this.usersService.getUserById(Number(id));
+        return this.usersService.getUserById((id));
 
     }
 
@@ -71,4 +71,12 @@ export class UsersController {
 
     }
 
+    /* Endpoint to get a user with his purchase orders.*/
+    @Get(":id/orders")
+    async getUserWithOrders(@Param("id") userId: string): Promise<any> {
+    return await this.usersService.getUserWithOrders(userId);
+    }
+
 }
+
+

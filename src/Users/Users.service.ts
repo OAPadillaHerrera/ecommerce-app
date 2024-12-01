@@ -1,14 +1,14 @@
 
 
 import { Injectable } from "@nestjs/common";
-import { usersRepository } from "./users.repository";
+import { UsersRepository } from "./users.repository";
 import { User } from "./user.interface";
 
 @Injectable ({})
 
 export class UsersService {
 
-    constructor (private usersRepository: usersRepository) {}
+    constructor (private usersRepository: UsersRepository) {}
 
     getUsers () {
 
@@ -16,7 +16,7 @@ export class UsersService {
 
     }
 
-    getUserById(id: number) {
+    getUserById(id: string) {
 
         return this.usersRepository.getById (id);
         
@@ -49,5 +49,14 @@ export class UsersService {
 
     }
     
-    
+    /* Get a user information and his orders.*/   
+    async getUserWithOrders(userId: string): Promise<any> {
+        try {
+            return await this.usersRepository.getUserWithOrders(userId);
+            } catch (error) {
+            throw new Error(`Error at obtaining a user and his orders: ${error.message}`);
+        }
+    }
 }
+    
+    

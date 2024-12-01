@@ -14,6 +14,7 @@ export class LoggerMiddleware implements NestMiddleware {
         console.log(`[${currentDate}] - Método: ${req.method} | Ruta: ${req.url}`);
 
         next ();
+        console.log(`[${currentDate}] - Después de llamar a next()`);
 
     }
 

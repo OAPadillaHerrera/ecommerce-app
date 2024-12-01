@@ -3,13 +3,19 @@
 import {MiddlewareConsumer, Module, NestModule} from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { UsersController } from "./users.controller";
-import { LoggerMiddleware } from "src/Middlewares/logger.middleware";
-import { usersRepository } from "./users.repository";
+import { UsersRepository} from "./users.repository";
+import { Users } from "./users.entity";
+import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module ({
 
-    providers: [UsersService, usersRepository],
-    controllers: [UsersController]
+    imports: [
+        TypeOrmModule.forFeature([Users]),
+      ],
+
+    providers: [UsersService, UsersRepository],
+    controllers: [UsersController],
+    exports: [UsersRepository],
 
 })
 

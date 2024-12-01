@@ -5,10 +5,12 @@ import { ProductsService } from "./products.service";
 import { Product } from "./product.interface";
 import { AuthGuard } from "src/Auth/AuthGuard";
 import { ValidateGuard } from "src/guards/validate.guard";
+import * as path from "path";
 
 @Controller ("products")
 
 export class ProductsController {
+  productsRepository: any;
 
     constructor (private readonly productsService: ProductsService) {}
 
@@ -74,4 +76,29 @@ export class ProductsController {
 
     }
 
-};
+    @Post("/seeder")
+
+    async seedProducts() {
+
+      console.log("Entrando al endpoint /seeder");
+
+      try {
+
+        // Ruta al archivo de datos
+        const filePath = path.resolve (__dirname, "../../src/Archivo_actividad_3.js");
+
+        // Llama al servicio con la ruta al archivo
+        const result = await this.productsService.seedProductsFromFile (filePath);
+        return result;
+
+      } catch (error) {
+
+        return `Failed to seed products: ${error.message}`;
+
+        }
+
+  }
+        
+
+}
+  
