@@ -18,7 +18,7 @@ export class ProductsService {
   }
 
   // Obtener producto por ID
-  getProductById(id: number) {
+  getProductById(id: /*number*/string) {
     return this.productsRepository.getById(id);
   }
 
@@ -37,12 +37,12 @@ export class ProductsService {
   }
 
   // Actualizar un producto
-  updateProduct(id: number, updateData: Partial<Product>) {
+  updateProduct(id: /*number*/string, updateData: Partial<Product>) {
     return this.productsRepository.updateProduct(id, updateData);
   }
 
   // Eliminar un producto
-  deleteProduct(id: number) {
+  deleteProduct(id: /*number*/string) {
     return this.productsRepository.deleteProduct(id);
   }
 
@@ -94,6 +94,8 @@ async getPaginatedProducts(page: number, limit: number) {
   }
   
 }
+
+
 
 
 

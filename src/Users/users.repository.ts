@@ -1,11 +1,11 @@
 
 
-import {BadRequestException, Injectable} from "@nestjs/common";
-import { User } from "./user.interface";
-import { Login } from "./login.interface";
+import {Injectable} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Users } from "./users.entity";
+import { User } from './user.interface';
 import { Repository } from "typeorm";
+import { CreateUserDto } from "./dtos/CreateUserDto";
 
 @Injectable ()
 
@@ -29,123 +29,51 @@ export class UsersRepository {
     { id: 10, email: "user10@example.com", name: "Helen Grey", password: "password666", address: "707 Aspen St", phone: "+34 600123789", country: "Spain", city: "Alicante" },
   ];
   
-    /* Obtener todos los usuarios*/
-    async getUsers (): Promise < Omit < User, "password" > [] > {
-
-      return this.users.map (({ password, ...user}) => user);
-
-    } 
-
-      async getById(userId: string): Promise<Users | null> {
-        return this.usersRepository.findOne({ where: { id: userId } });
-      }  
-
-
-
-    async createUser (user: Omit <User, "id">): Promise < {id: number} > {
-
-      const id = this.users.length + 1;
-
-      this.users = [...this.users, {id, ... user}];
-
-      return {id};
-
-    }
-
-    async updateUser (id: number, updateData: Partial <User>): Promise < {id: number}> {
-
-      const user = this.users.find (user => user.id === id );
-
-      if (!user) {
-
-        throw new Error ("User not found");
-
+      /* Obtener todos los usuarios */
+      async getUsers(): Promise<Users[]> {
+        return this.usersRepository.find(); // Delegar al repositorio interno
       }
-
-      Object.keys(updateData).forEach(key => {
-
-        if (key in user && key !== 'id') {
-
-            (user as any)[key] = (updateData as any)[key];
-
-        }
-
-      });
-
-      // Retornar el usuario actualizado
-      return {id};
-
-    }
-
-    async deleteUser (id: number): Promise <{id: number}> {
-
-      const user = this.users.findIndex (user => user.id === id );
-
-      if (user === -1) {
-
-        throw new Error ("User not found");
     
+      async getById(id: string): Promise<Users | null> {
+        return this.usersRepository.findOne({ where: { id } });
       }
 
-      this.users.splice (user, 1);
+        async createUser(userDto: CreateUserDto): Promise<Users> {
+          const newUser = this.usersRepository.create(userDto);
+          return this.usersRepository.save(newUser); // Devuelve un `Users`
+      }
 
-      return {id};
-
-    }
-
-    async getPaginatedUsers (page: number = 1, limit: number = 5): Promise<{
-
-      users: Omit<User, "password"> [];
-      totalUsers: number;
-      totalPages: number;
-      currentPage: number;
-
-    }> {
-          const totalUsers = this.users.length;
-          const totalPages = Math.ceil (totalUsers / limit);
-          const startIndex = (page - 1) * limit;
-          const endIndex = startIndex + limit;
-  
-          console.log ("Repository: Total Users =", totalUsers);
-          console.log (`Repository: StartIndex=${startIndex}, EndIndex=${endIndex}`);
-  
-          const users = this.users.slice (startIndex, endIndex).map (({ password, ...user }) => user);
-  
-          console.log ("Repository: Paginated Users =", users);
-  
-          return {
-            
-            users,
-            totalUsers,
-            totalPages,
-            currentPage: page,
-
-          };
-
-        }
-
-
-    async logUser (login: Login): Promise <User | string> {
-
-      if (!login.email || !login.password) {
+          async updateUser(id: string, userDto: Partial<CreateUserDto>): Promise<Omit<Users, 'password'>> {
+            // Buscar el usuario por su ID
+            const user = await this.usersRepository.findOne({ where: { id } });
+            if (!user) {
+                throw new Error(`User with ID ${id} not found`);
+            }
         
-        throw new BadRequestException ("Email and password are required");
-
+            // Actualizar los campos proporcionados en el DTO
+            Object.assign(user, userDto);
+        
+            // Guardar los cambios en la base de datos
+            const updatedUser = await this.usersRepository.save(user);
+        
+            // Excluir el campo 'password' de la respuesta
+            const { password, ...userWithoutPassword } = updatedUser;
+            return userWithoutPassword;
+        }
+    
+      async deleteUser(id: string): Promise<void> {
+        const result = await this.usersRepository.delete(id);
+        if (result.affected === 0) {
+          throw new Error('User not found');
+        }
       }
-    
-      const user = this.users.find (user => user.email === login.email);
-    
-      if (!user || login.password !== user.password) {
-    
-        throw new BadRequestException ("Email or password are incorrect");
-    
-      } else {          
-                
-        return user;
-    
+      
+      async getPaginatedUsers(page: number, limit: number): Promise<[Users[], number]> {
+        return this.usersRepository.findAndCount({
+          skip: (page - 1) * limit,
+          take: limit,
+        });
       }
-    
-    }
 
   /* Get user by ID, By only including the ID and his purchase orders Date (`date`).*/
   async getUserWithOrders(userId: string): Promise<any> {
@@ -171,7 +99,18 @@ export class UsersRepository {
 
     return filteredUser;
   }
-}
+
+      
+
+        async logUser(email: string): Promise<Users | null> {
+          // Buscar usuario por email en la base de datos
+          return await this.usersRepository.findOne({ where: { email } });
+      }
+      }
+
+      
+    
+    
 
 
 

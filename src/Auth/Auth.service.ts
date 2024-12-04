@@ -1,25 +1,36 @@
 
 
-import { Injectable } from "@nestjs/common";
-import { UsersRepository } from "../Users/users.repository";
-import { Login } from "../Users/login.interface";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersRepository } from '../Users/users.repository';
+import { LoginUserDto } from './dtos/LoginUserDto'; // Importa el DTO
 
-@Injectable ({})
-
+@Injectable()
 export class AuthService {
+  constructor(private usersRepository: UsersRepository) {}
 
-    constructor (private usersRepository: UsersRepository) {}
+  getAuth() {
+    return 'Auth';
+  }
 
-    getAuth () {
+  async logUser(loginUserDto: LoginUserDto): Promise<any> {
+    const { email, password } = loginUserDto;
 
-        return "Auth";
+    // Buscar usuario por email
+    const user = await this.usersRepository.logUser(email);
 
+    // Si no se encuentra el usuario, lanzar excepción
+    if (!user) {
+        throw new UnauthorizedException('Email o contraseña incorrectos');
     }
 
-    logUser (login: Login) {
-
-        return this.usersRepository.logUser (login);
-        
+    // Comparar la contraseña directamente
+    if (user.password !== password) {
+        throw new UnauthorizedException('Email o contraseña incorrectos');
     }
 
+    // Excluir la contraseña antes de devolver el usuario
+    const { password: _, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
+}
 }

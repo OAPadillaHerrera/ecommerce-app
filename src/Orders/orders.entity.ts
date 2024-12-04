@@ -16,7 +16,6 @@ export class Orders {
 
     @PrimaryGeneratedColumn ("uuid")
     id: string = uuid ()
-
    
     @Column ("date", { nullable: false })
     date: Date;
@@ -24,7 +23,7 @@ export class Orders {
     @Column ({type: 'decimal', precision: 10, scale: 2 })
     totalPrice: number;
 
-    @ManyToOne (() => Users, (users) => users.orders, { nullable: false})
+    @ManyToOne (() => Users, (users) => users.orders, { nullable: false })
     @JoinColumn ()
     users: Users;
 

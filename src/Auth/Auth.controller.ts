@@ -1,28 +1,29 @@
 
 
-import {Body, Controller, Get, Post} from "@nestjs/common";
-import { AuthService } from "./auth.service";
-import { Login } from "src/Users/login.interface";
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { LoginUserDto } from './dtos/LoginUserDto'; // Importa el DTO
 
-@Controller ("auth")
-
+@Controller('auth')
 export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
-    constructor (private readonly authService: AuthService) {}
-    @Get ()   
+  @Get()
+  getAuth() {
+    return this.authService.getAuth();
+  }
 
-    getAuth () {
+  @Post('/signin')
+    async logUser(@Body() loginUserDto: LoginUserDto) {
+        // Llamar al servicio para autenticar al usuario
+        const user = await this.authService.logUser(loginUserDto);
 
-        return this.authService.getAuth ();
-
+        // Retornar respuesta en formato estándar
+        return {
+            message: 'Inicio de sesión exitoso',
+            user,
+        };
     }
+}
 
-    @Post("/signin")
 
-    logUser(@Body () login: Login) {
-
-        return this.authService.logUser (login);
-
-    }
-
-};

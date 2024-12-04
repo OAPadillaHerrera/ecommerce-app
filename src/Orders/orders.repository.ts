@@ -10,7 +10,7 @@ import { Products } from "../Products/products.entity"; // Entidad que represent
 import { OrderDetails } from "../OrderDetails/orderdetails.entity"; // Entidad que representa la tabla de detalles de órdenes.
 
 /* Importa decoradores y utilidades de NestJS para crear servicios.*/
-import { Injectable } from "@nestjs/common"; // Decorador que marca una clase como inyectable, permitiendo su uso en otros componentes.
+import { Injectable, NotFoundException } from "@nestjs/common"; // Decorador que marca una clase como inyectable, permitiendo su uso en otros componentes.
 
 @Injectable() // Marca esta clase como un servicio inyectable en el ecosistema de NestJS.
 export class OrdersRepository {
@@ -20,131 +20,112 @@ export class OrdersRepository {
     @InjectRepository(Orders)
     private readonly ordersRepository: Repository<Orders>, // Repositorio para interactuar con la tabla de órdenes en la base de datos.
   ) {}
-
-  /**
-   * Recupera una orden por ID, incluyendo sus relaciones:
-   * - Usuario relacionado
-   * - Detalles de la orden
-   * - Productos asociados a los detalles
-   * Filtra los productos con `stock > 0`.
-   */
-  async getOrder(id: string): Promise<Orders | undefined> {
-    const order = await this.ordersRepository.findOne({
-      where: { id }, // Busca la orden por su ID único.
-      relations: ["users", "orderDetails", "orderDetails.products"], // Incluye relaciones necesarias para construir la respuesta completa.
-    });
-
-    /* Filtra los productos que tienen `stock > 0` para excluir los productos agotados.*/
-    if (order && order.orderDetails?.products) {
-      order.orderDetails.products = order.orderDetails.products.filter(
-        (product) => product.stock > 0,
-      );
-    }
-
-    return order; // Devuelve la orden con los productos filtrados.
-  }
-
-  /**
-   * Crea una nueva orden para un usuario y una lista de productos.
-   * - Valida que los productos tienen stock suficiente.
-   * - Reduce el stock de los productos seleccionados.
-   * - Maneja relaciones entre órdenes, detalles y productos.
-   */
-  async addOrder(userId: string, productIds: string[]): Promise<Orders> {
-    const queryRunner = this.dataSource.createQueryRunner(); // Crea un QueryRunner para manejar transacciones manualmente.
-    await queryRunner.connect();
-    await queryRunner.startTransaction(); // Inicia la transacción
-
-    try {
-      /* Validación: Asegurarse de que se proporcionaron IDs de productos.*/
-      if (!productIds || productIds.length === 0) {
-        throw new Error("No se han proporcionado IDs de productos.");
+    
+      async getOrder(id: string): Promise<Orders> {
+        // Validar el formato del UUID (opcional, ya manejado por Pipes en los controladores)
+        if (!id) {
+          throw new Error('El ID proporcionado es inválido.');
+        }
+    
+        const order = await this.ordersRepository.findOne({
+          where: { id },
+          relations: ['users', 'orderDetails', 'orderDetails.products'], // Relaciones necesarias
+        });
+    
+        // Manejo de caso en que no se encuentre la orden
+        if (!order) {
+          throw new NotFoundException(`No se encontró una orden con el ID ${id}.`);
+        }
+    
+        // Filtrar productos con stock > 0
+        if (order.orderDetails?.products) {
+          order.orderDetails.products = order.orderDetails.products.filter(
+            (product) => product.stock > 0,
+          );
+        }
+    
+        return order; // Devuelve la orden completa
       }
-
-      /* Validación: Asegurarse de que el usuario existe en la base de datos.*/
-      const user = await queryRunner.manager.findOne(Users, { where: { id: userId } });
-      if (!user) {
-        throw new Error("Usuario no encontrado.");
+    
+    async addOrder(userId: string, productIds: string[]): Promise<Orders> {
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+    
+      try {
+        const user = await queryRunner.manager.findOne(Users, { where: { id: userId } });
+        if (!user) {
+          throw new Error("Usuario no encontrado.");
+        }
+    
+        const products = await queryRunner.manager.find(Products, {
+          where: { id: In(productIds), stock: MoreThan(0) },
+        });
+    
+        if (products.length === 0) {
+          throw new Error("Ningún producto tiene stock suficiente.");
+        }
+    
+        // Lógica de creación de la orden, detalles y relaciones (igual que antes).
+        const order = new Orders();
+        order.date = new Date();
+        order.totalPrice = products.reduce((sum, product) => sum + Number(product.price), 0);
+        order.users = user;
+    
+        const savedOrder = await queryRunner.manager.save(Orders, order);
+    
+        const orderDetails = new OrderDetails();
+        orderDetails.price = savedOrder.totalPrice;
+        orderDetails.orders = savedOrder;
+    
+        const savedOrderDetails = await queryRunner.manager.save(OrderDetails, orderDetails);
+    
+        savedOrder.orderDetailsId = savedOrderDetails.id;
+        await queryRunner.manager.save(Orders, savedOrder);
+    
+        const orderDetailsProductRelations = products.map((product) => ({
+          productsId: product.id,
+          orderDetailsId: savedOrderDetails.id,
+        }));
+    
+        await queryRunner.manager
+          .createQueryBuilder()
+          .insert()
+          .into('products_order_details_order_details')
+          .values(orderDetailsProductRelations)
+          .execute();
+    
+        for (const product of products) {
+          product.stock -= 1;
+          await queryRunner.manager.save(Products, product);
+        }
+    
+        const savedOrderWithRelations = await queryRunner.manager.findOne(Orders, {
+          where: { id: savedOrder.id },
+          relations: ['users', 'orderDetails', 'orderDetails.products'],
+        });
+    
+        if (!savedOrderWithRelations) {
+          throw new Error("No se pudo cargar la orden con sus relaciones.");
+        }
+    
+        await queryRunner.commitTransaction();
+    
+        if (savedOrderWithRelations.orderDetails?.products) {
+          savedOrderWithRelations.orderDetails.products = savedOrderWithRelations.orderDetails.products.filter(
+            (product) => product.stock > 0,
+          );
+        }
+    
+        return savedOrderWithRelations;
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw new Error(`No se pudo crear la orden: ${error.message}`);
+      } finally {
+        await queryRunner.release();
       }
+    }    
 
-      /* Validación: Recuperar productos disponibles con `stock > 0`.*/
-      const products = await queryRunner.manager.find(Products, {
-        where: { id: In(productIds), stock: MoreThan(0) }, // Filtra productos con stock mayor a 0
-      });
-
-      /* Si no hay productos disponibles, lanza un error.*/
-      if (products.length === 0) {
-        throw new Error("Ningún producto tiene stock suficiente.");
-      }
-
-      /* Crear la orden principal.*/
-      const order = new Orders();
-      order.date = new Date(); // Establece la fecha actual como fecha de la orden.
-      order.totalPrice = products.reduce((sum, product) => sum + Number(product.price), 0); // Calcula el precio total.
-      order.users = user; // Asocia la orden con el usuario.
-
-      const savedOrder = await queryRunner.manager.save(Orders, order); // Guarda la orden en la base de datos.
-
-      /* Crear detalles de la orden.*/
-      const orderDetails = new OrderDetails();
-      orderDetails.price = savedOrder.totalPrice; // Precio total de la orden.
-      orderDetails.orders = savedOrder; // Asocia los detalles con la orden.
-
-      const savedOrderDetails = await queryRunner.manager.save(OrderDetails, orderDetails); // Guarda los detalles de la orden.
-
-      /* Actualiza la orden con el ID de los detalles.*/
-      savedOrder.orderDetailsId = savedOrderDetails.id;
-      await queryRunner.manager.save(Orders, savedOrder); // Guarda la orden actualizada.
-
-      /* Crear relaciones en la tabla intermedia `products_order_details_order_details`.*/
-      const orderDetailsProductRelations = products.map((product) => ({
-        productsId: product.id,
-        orderDetailsId: savedOrderDetails.id,
-      }));
-
-      await queryRunner.manager
-        .createQueryBuilder()
-        .insert()
-        .into('products_order_details_order_details') // Tabla de relaciones entre productos y detalles.
-        .values(orderDetailsProductRelations)
-        .execute();
-
-      /* Reducir el stock de los productos seleccionados.*/
-      for (const product of products) {
-        product.stock -= 1; // Resta 1 al stock
-        await queryRunner.manager.save(Products, product); // Guarda el producto actualizado.
-      }
-
-      /* Recargar la orden con sus relaciones completas.*/
-      const savedOrderWithRelations = await queryRunner.manager.findOne(Orders, {
-        where: { id: savedOrder.id },
-        relations: ["users", "orderDetails", "orderDetails.products"], // Relaciones completas.
-      });
-
-      if (!savedOrderWithRelations) {
-        throw new Error("No se pudo cargar la orden con sus relaciones.");
-      }
-
-      /* Confirmar la transacción si todo salió bien.*/
-      await queryRunner.commitTransaction();
-
-      /* Filtrar productos sin stock antes de devolver la orden.*/
-      if (savedOrderWithRelations.orderDetails?.products) {
-        savedOrderWithRelations.orderDetails.products = savedOrderWithRelations.orderDetails.products.filter(
-          (product) => product.stock > 0,
-        );
-      }
-
-      return savedOrderWithRelations; // Devuelve la orden completa con relaciones y productos filtrados.
-    } catch (error) {
-      /* Revertir la transacción en caso de error.*/
-      await queryRunner.rollbackTransaction();
-      throw new Error(`No se pudo crear la orden: ${error.message}`);
-    } finally {
-      /* Liberar el QueryRunner.*/
-      await queryRunner.release();
-    }
-  }
 }
 
 
