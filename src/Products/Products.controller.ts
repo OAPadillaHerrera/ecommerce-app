@@ -10,6 +10,9 @@ import {
   Body,
   UseGuards,
   Query,
+  UseInterceptors,
+  UploadedFiles,
+  UploadedFile,
 } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
@@ -18,10 +21,18 @@ import { AuthGuard } from 'src/Auth/AuthGuard';
 import { ValidateGuard } from 'src/guards/validate.guard';
 import * as path from 'path';
 import { UUIDParamDto } from '../dtos/UUIDParamDto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { FileValidationPipe } from '../common/pipes/file-validation.pipe';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly cloudinaryService: CloudinaryService,
+  
+  ) {}
 
   @Get('/all')
   getProducts() {
@@ -54,6 +65,25 @@ export class ProductsController {
     return this.productsService.createProduct(product);
   }
 
+    @Post('images')
+    @UseInterceptors(FileInterceptor('image'))
+    async getUserImages(@UploadedFile() file: Express.Multer.File) {
+      try {
+        if (!file) {
+          throw new Error('No se ha recibido ningún archivo');
+        }
+        console.log('Archivo recibido:', file);
+        const result = await this.cloudinaryService.uploadImage(file);
+        console.log('Resultado de la subida:', result);
+        return result;
+      } catch (error) {
+        console.error('Error al subir la imagen:', error.message);
+        throw new Error('Error al procesar la imagen: ' + error.message);
+      }
+    }
+    
+
+
   @Put(':id')
   @UseGuards(AuthGuard, ValidateGuard)
   updateProduct(@Param() params: UUIDParamDto, @Body() updateData: Partial<Product>) {
@@ -80,6 +110,17 @@ export class ProductsController {
       return `Failed to seed products: ${error.message}`;
     }
   }
+
+  @Put('/files/uploadImage/:id')
+@UseInterceptors(FileInterceptor('file'))
+async uploadImageToProduct(
+  @Param('id') id: string,
+  @UploadedFile(FileValidationPipe) file: Express.Multer.File,
+) {
+  return this.productsService.uploadProductImage(id, file);
+}
+
+
 }
 
   

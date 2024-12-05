@@ -4,12 +4,14 @@ import { Injectable } from "@nestjs/common";
 import { ProductsRepository } from "./products.repository";
 import { CategoriesService } from "../Categories/categories.service";
 import { Product } from "./product.interface";
+import { CloudinaryService } from "../cloudinary/cloudinary.service";
 
 @Injectable()
 export class ProductsService {
   constructor(
     private readonly productsRepository: ProductsRepository,
-    private readonly categoriesService: CategoriesService
+    private readonly categoriesService: CategoriesService,
+    private readonly cloudinaryService: CloudinaryService, 
   ) {}
 
   // Obtener todos los productos
@@ -92,6 +94,22 @@ async getPaginatedProducts(page: number, limit: number) {
       throw error;
     }
   }
+
+  async uploadProductImage(productId: string, file: Express.Multer.File): Promise<{ id: string }> {
+    const product = await this.getProductById(productId);
+  
+    if (!product) {
+      throw new Error('Producto no encontrado');
+    }
+  
+    if (!file) {
+      throw new Error('No se ha proporcionado un archivo');
+    }
+  
+    const uploadResult = await this.cloudinaryService.uploadImage(file);
+  
+    return this.productsRepository.updateProduct(productId, { imgUrl: uploadResult.secure_url });
+  } 
   
 }
 
