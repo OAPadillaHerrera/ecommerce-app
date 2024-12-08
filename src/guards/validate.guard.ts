@@ -1,74 +1,81 @@
 
 
-import { CanActivate, ExecutionContext, Injectable, BadRequestException } from "@nestjs/common";
-import { Any } from "typeorm";
+/**
+ * This file provides validation logic for HTTP requests targeting
+ * User and Product entities. It includes specific rules for each
+ * entity and a guard to enforce these validations.
+ */
 
-/* Validar solicitudes para las entidades User y Product.*/
-function validateRequest(request: Request): boolean {
+import { CanActivate, ExecutionContext, Injectable, BadRequestException } from "@nestjs/common"; // Import required NestJS components.
 
-    const {method, body, url} = request as any;
+function validateRequest (request: Request): boolean {
 
-    /* Determinar el tipo de entidad según la ruta.*/
-    const isUser = url.includes ("users");
-    const isProduct = url.includes ("products");
+    const { method, body, url } = request as any; // Extract method, body, and URL from the request.
 
-    if (!body || typeof body !== "object") {
+    const isUser = url.includes ("users"); // Check if the URL targets User.
+    const isProduct = url.includes ("products"); // Check if the URL targets Product.
 
-        console.error ("Validation error: Body must be a valid object.");
+    if (!body || typeof body !== "object") { // Check if the body is a valid object.
+
+        console.error ("Validation error: Body must be a valid object."); // Log error for invalid body structure.
         return false;
+
     }
 
     if (isUser) {
 
-        return validateUserRequest (method, body);
+        return validateUserRequest (method, body); // Validate User requests.
 
     } else if (isProduct) {
 
-        return validateProductRequest(method, body);
+        return validateProductRequest (method, body); // Validate Product requests.
 
     } else {
 
-        console.error("Validation error: Unrecognized entity.");
+        console.error ("Validation error: Unrecognized entity."); // Log error for unknown entity.
         return false;
 
     }
+
 }
 
-/* Validación específica para la entidad User.*/
-function validateUserRequest(method: string, body: any): boolean {
+function validateUserRequest (method: string, body: any): boolean {
 
-    const requiredFieldsForPost = ["email", "name", "password", "address", "phone", "country", "city"];
-    const allFields = [...requiredFieldsForPost, "id"]; // Todos los campos posibles.
+    const requiredFieldsForPost = ["email", "name", "password", "address", "phone", "country", "city"]; // Fields required for POST requests.
+    const allFields = [...requiredFieldsForPost, "id"]; // All possible fields for User.
 
     if (method === "POST") {
 
-        for (const field of requiredFieldsForPost) {
+        for (const field of requiredFieldsForPost) { // Check required fields for POST requests.
 
-            if (!body.hasOwnProperty (field)) {
+            if (!body.hasOwnProperty (field)) { // Validate the presence of required fields.
 
-                console.error(`Validation error: ${field} is required for User.`);
+                console.error (`Validation error: ${field} is required for User.`);
                 return false;
 
             }
 
-            if (!validateFieldType(field, body[field], "User")) {
+            if (!validateFieldType (field, body [field], "User")) { // Validate field types.
 
                 console.error (`Validation error: ${field} has an invalid type for User.`);
                 return false;
+
             }
-        }
+
+        } 
+
     } else if (method === "PUT") {
 
-        for (const field in body) {
+        for (const field in body) { // Check fields provided in PUT requests.
 
-            if (!allFields.includes (field)) {
+            if (!allFields.includes (field)) { // Validate that fields are allowed.
 
                 console.error (`Validation error: ${field} is not a valid field for User.`);
                 return false;
 
             }
 
-            if (!validateFieldType (field, body[field], "User")) {
+            if (!validateFieldType (field, body[field], "User")) { // Validate field types.
 
                 console.error (`Validation error: ${field} has an invalid type for User.`);
                 return false;
@@ -80,27 +87,26 @@ function validateUserRequest(method: string, body: any): boolean {
     }
 
     return true;
+
 }
 
-/* Validación específica para la entidad Product.*/
 function validateProductRequest (method: string, body: any): boolean {
 
-    const requiredFieldsForPost = ["name", "description", "price", "stock", "imgUrl"];
-    const allFields = [...requiredFieldsForPost, "id"]; // Todos los campos posibles.
+    const requiredFieldsForPost = ["name", "description", "price", "stock", "imgUrl"]; // Fields required for POST requests.
+    const allFields = [...requiredFieldsForPost, "id"]; // All possible fields for Product.
 
     if (method === "POST") {
 
-        for (const field of requiredFieldsForPost) {
+        for (const field of requiredFieldsForPost) { // Check required fields for POST requests.
 
-            if (!body.hasOwnProperty(field)) {
+            if (!body.hasOwnProperty (field)) { // Validate the presence of required fields.
 
                 console.error (`Validation error: ${field} is required for Product.`);
                 return false;
 
             }
 
-            if (!validateFieldType (field, body[field], "Product")) {
-
+            if (!validateFieldType (field, body[field], "Product")) { // Validate field types.
                 console.error (`Validation error: ${field} has an invalid type for Product.`);
                 return false;
 
@@ -110,18 +116,19 @@ function validateProductRequest (method: string, body: any): boolean {
 
     } else if (method === "PUT") {
 
-        for (const field in body) {
+        for (const field in body) { // Check fields provided in PUT requests.
 
-            if (!allFields.includes(field)) {
+            if (!allFields.includes (field)) { // Validate that fields are allowed.
 
-                console.error(`Validation error: ${field} is not a valid field for Product.`);
+                console.error (`Validation error: ${field} is not a valid field for Product.`);
                 return false;
-
             }
 
-            if (!validateFieldType(field, body[field], "Product")) {
+            if (!validateFieldType (field, body[field], "Product")) { // Validate field types.
+
                 console.error(`Validation error: ${field} has an invalid type for Product.`);
                 return false;
+
             }
 
         }
@@ -129,14 +136,14 @@ function validateProductRequest (method: string, body: any): boolean {
     }
 
     return true;
+
 }
 
-/* Validar tipos según la entidad (User o Product).*/
-function validateFieldType (field: string, value: any, entity: "User" | "Product"): boolean {
+function validateFieldType(field: string, value: any, entity: "User" | "Product"): boolean {
 
-    const fieldTypes: Record <"User" | "Product", Record <string, string>> = {
+    const fieldTypes: Record<"User" | "Product", Record<string, string>> = {
 
-        User: {
+        User: { // Field types for User.
 
             id: "number",
             email: "string",
@@ -149,7 +156,7 @@ function validateFieldType (field: string, value: any, entity: "User" | "Product
 
         },
 
-        Product: {
+        Product: { // Field types for Product.
 
             id: "number",
             name: "string",
@@ -163,27 +170,27 @@ function validateFieldType (field: string, value: any, entity: "User" | "Product
 
     };
 
-    return typeof value === fieldTypes [entity][field];
+    return typeof value === fieldTypes [entity][field]; // Validate field type.
+
 }
 
-// Guardián que aplica la validación
-@Injectable()
+@Injectable ()
 
 export class ValidateGuard implements CanActivate {
 
     canActivate (context: ExecutionContext): boolean {
 
-        const request = context.switchToHttp ().getRequest ();
-        const isValid = validateRequest (request);
+        const request = context.switchToHttp ().getRequest (); // Extract the HTTP request.
+        const isValid = validateRequest (request); // Validate the request.
 
         if (!isValid) {
 
-            throw new BadRequestException ("Invalid request body structure.");
+            throw new BadRequestException ("Invalid request body structure."); // Throw an exception for invalid requests.
 
         }
 
-        return true;
+        return true; // Allow execution for valid requests.
 
     }
-    
+
 }

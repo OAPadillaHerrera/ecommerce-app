@@ -1,26 +1,32 @@
 
 
-import {MiddlewareConsumer, Module, NestModule} from "@nestjs/common";
-import { UsersService } from "./users.service";
-import { UsersController } from "./users.controller";
-import { UsersRepository} from "./users.repository";
-import { Users } from "./users.entity";
-import { TypeOrmModule } from "@nestjs/typeorm";
+/**
+ * This file defines the `UsersModule`, which is responsible for managing
+ * all user-related functionality in the application, including database
+ * integration, business logic, and HTTP request handling.
+ */
+
+import { Module } from "@nestjs/common"; // Import the decorator for defining a NestJS module.
+import { UsersService } from "./users.service"; // Import the service layer that contains business logic related to users.
+import { UsersController } from "./users.controller"; // Import the controller layer that handles HTTP requests for user operations.
+import { UsersRepository } from "./users.repository"; // Import the repository layer for interacting with the database for user data.
+import { Users } from "./users.entity"; // Import the entity that represents the `Users` table in the database.
+import { TypeOrmModule } from "@nestjs/typeorm"; // Import the TypeORM module for integrating entities and managing repositories.
 
 @Module ({
 
     imports: [
-        TypeOrmModule.forFeature([Users]),
-      ],
 
-    providers: [UsersService, UsersRepository],
-    controllers: [UsersController],
-    exports: [UsersRepository],
+        TypeOrmModule.forFeature ([Users]), // Register the `Users` entity with TypeORM to enable database operations.
+        
+    ],
 
+    providers: [UsersService, UsersRepository], // Declare the service and repository as providers for dependency injection.
+    controllers: [UsersController], // Register the controller that handles HTTP requests for this module.
+    exports: [UsersRepository], // Export the repository to make it available for use in other modules.
+    
 })
+export class UsersModule {}
 
-export class UsersModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {
-        /*consumer.apply(LoggerMiddleware).forRoutes ("Users");*/
-    }
-}
+
+

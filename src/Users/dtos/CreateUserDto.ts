@@ -1,57 +1,64 @@
 
 
+/**
+ * This file defines the `CreateUserDto` class for data validation in user creation.
+ * The class uses `class-validator` decorators to enforce validation rules for user input fields.
+ * Each property is optional but includes constraints for when provided.
+ */
+
 import {
-  IsOptional,
-  IsNotEmpty,
-  IsString,
-  IsEmail,
-  Length,
-  Matches,
-  IsNumberString,
+
+  IsOptional, // Marks a property as optional.
+  IsNotEmpty, // Ensures the property is not empty.
+  IsString, // Validates the property is a string.
+  IsEmail, // Validates the property is a valid email address.
+  Length, // Sets minimum and maximum length constraints.
+  Matches, // Validates the property against a regex pattern.
+  IsNumberString, // Ensures the property is a string of numbers.
+
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsOptional() // Opcional en PUT
-  @IsNotEmpty({ message: 'El nombre es obligatorio.' })
-  @IsString({ message: 'El nombre debe ser una cadena.' })
-  @Length(3, 80, { message: 'El nombre debe tener entre 3 y 80 caracteres.' })
-  name?: string;
 
-  @IsOptional()
-  @IsNotEmpty({ message: 'El email es obligatorio.' })
-  @IsEmail({}, { message: 'Debe proporcionar un email válido.' })
-  email?: string;
+  @IsOptional () // Field is optional for requests like PUT.
+  @IsNotEmpty ({ message: 'Name is required.' }) // Ensures the field is not empty if provided.
+  @IsString ({ message: 'Name must be a string.' }) // Validates that the field is a string.
+  @Length (3, 80, { message: 'Name must be between 3 and 80 characters.' }) // Enforces length constraints.
+  name?: string; // User's name.
 
-  @IsOptional()
-  @IsNotEmpty({ message: 'La contraseña es obligatoria.' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,15}$/, {
+  @IsOptional ()
+  @IsNotEmpty ({ message: 'Email is required.' })
+  @IsEmail ({}, { message: 'Must provide a valid email address.' }) // Validates email format.
+  email?: string; // User's email address.
+
+  @IsOptional ()
+  @IsNotEmpty ({ message: 'Password is required.' })
+  @Matches (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,15}$/, {
     message:
-      'La contraseña debe tener entre 8 y 15 caracteres, incluir una mayúscula, una minúscula, un número y un carácter especial (!@#$%^&*).',
-  })
-  password?: string;
+      'Password must be 8-15 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (!@#$%^&*).',
+  }) // Enforces a strong password format.
+  password?: string; // User's password.
 
-  @IsOptional()
-  @IsNotEmpty({ message: 'La dirección es obligatoria.' })
-  @IsString({ message: 'La dirección debe ser una cadena.' })
-  @Length(3, 80, { message: 'La dirección debe tener entre 3 y 80 caracteres.' })
-  address?: string;
+  @IsOptional ()
+  @IsNotEmpty ({ message: 'Address is required.' })
+  @IsString ({ message: 'Address must be a string.' })
+  @Length (3, 80, { message: 'Address must be between 3 and 80 characters.' })
+  address?: string; // User's address.
 
-  @IsOptional()
-  @IsNotEmpty({ message: 'El número de teléfono es obligatorio.' })
-  @IsNumberString({}, { message: 'El número de teléfono debe ser numérico.' })
-  phone?: number;
+  @IsOptional ()
+  @IsNotEmpty ({ message: 'Phone number is required.' })
+  @IsNumberString ({}, { message: 'Phone number must be numeric.' }) // Ensures the phone number contains only digits.
+  phone?: number; // User's phone number.
 
-  @IsOptional()
-  @IsNotEmpty({ message: 'El país es obligatorio.' })
-  @IsString({ message: 'El país debe ser una cadena.' })
-  @Length(5, 20, { message: 'El país debe tener entre 5 y 20 caracteres.' })
-  country?: string;
+  @IsOptional ()
+  @IsNotEmpty ({ message: 'Country is required.' })
+  @IsString ({ message: 'Country must be a string.' })
+  @Length (5, 20, { message: 'Country must be between 5 and 20 characters.' })
+  country?: string; // User's country.
 
-  @IsOptional()
-  @IsNotEmpty({ message: 'La ciudad es obligatoria.' })
-  @IsString({ message: 'La ciudad debe ser una cadena.' })
-  @Length(5, 20, { message: 'La ciudad debe tener entre 5 y 20 caracteres.' })
-  city?: string;
+  @IsOptional ()
+  @IsNotEmpty ({ message: 'City is required.' })
+  @IsString ({ message: 'City must be a string.' })
+  @Length (5, 20, { message: 'City must be between 5 and 20 characters.' })
+  city?: string; // User's city.
 }
-
-  

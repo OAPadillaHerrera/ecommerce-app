@@ -1,56 +1,43 @@
 
 
-/*import { DataSource, DataSourceOptions } from "typeorm";
-import { config as dotenvConfig } from "dotenv";
-import { registerAs } from "@nestjs/config";
+/**
+ * This file defines the TypeORM configuration for database connectivity. 
+ * It loads environment variables, sets up database connection options, 
+ * and initializes the TypeORM data source for use in the application.
+ */
 
-dotenvConfig ({path: ".env.develpment"})
- 
-const config = {
+import { DataSource, DataSourceOptions } from 'typeorm'; // Import TypeORM's DataSource and configuration options.
+import { config as dotenvConfig } from 'dotenv'; // Import dotenv to load environment variables.
+import { Categories } from '../Categories/categories.entity'; // Import the Categories entity.
+import { OrderDetails } from '../OrderDetails/orderdetails.entity'; // Import the OrderDetails entity.
+import { Users } from '../Users/users.entity'; // Import the Users entity.
+import { Products } from '../Products/products.entity'; // Import the Products entity.
+import { Orders } from '../Orders/orders.entity'; // Import the Orders entity.
 
-      type: "postgres",
-      database: process.env.DB_NAME,
-      host: process.env.DB_HOST,
-      port: parseInt ((process.env.DB_PORT), 10),
-      username: process.env.DB_USERNAME,
-      password: String (process.env.DB_PASSWORD),
-      autoLoadEntities: true,
-      synchronize: false,      
-      logging: true, // Activa logs generales de TypeORM.
 
-}
+dotenvConfig ({ path: '.env.development' }); // Load environment variables from the '.env.development' file.
 
-export default registerAs ("typeorm", () => config);
-export const connectionSource = new DataSource (config as DataSourceOptions);*/
-
-import { DataSource, DataSourceOptions } from 'typeorm';
-import { config as dotenvConfig } from 'dotenv';
-import { Categories } from '../Categories/categories.entity';
-import { OrderDetails } from '../OrderDetails/orderdetails.entity';
-import { Users } from '../Users/users.entity';
-import { Products } from '../Products/products.entity';
-import { Orders } from '../Orders/orders.entity';
-
-// Carga las variables de entorno desde el archivo .env.development
-dotenvConfig({ path: '.env.development' });
-
-// Configuración principal para TypeORM
 const typeOrmConfigOptions: DataSourceOptions = {
-  type: process.env.TYPEORM_TYPE as any, // Asegúrate de que TYPEORM_TYPE está definido en .env
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT, 10),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  synchronize: false, // Usa migraciones en lugar de sincronización automática
-  logging: true,
-  entities: [Categories, OrderDetails, Users, Products, Orders],
-  migrations: ['dist/migrations/*.js'],
+
+  type: process.env.TYPEORM_TYPE as any, // The database type, defined in the environment variables.
+  host: process.env.DB_HOST, // Database host URL or IP.
+  port: parseInt (process.env.DB_PORT, 10), // Port for connecting to the database.
+  username: process.env.DB_USERNAME, // Database username.
+  password: process.env.DB_PASSWORD, // Database password.
+  database: process.env.DB_NAME, // Name of the database.
+  synchronize: false, // Disables auto-sync; use migrations instead for production safety.
+  logging: true, // Enables query logging for debugging.
+  entities: [Categories, OrderDetails, Users, Products, Orders], // Entities registered for this data source.
+  migrations: ['dist/migrations/*.js'], // Location of migration files.
+
 };
 
-export const connectionSource = new DataSource(typeOrmConfigOptions);
 
-// Exporta una función que regresa el objeto completo
+export const connectionSource = new DataSource (typeOrmConfigOptions); // Initialize and export the TypeORM data source.
+
+// Export a function that provides the complete TypeORM configuration object.
 export const typeOrmConfig = () => ({
+
   typeorm: typeOrmConfigOptions,
+  
 });
