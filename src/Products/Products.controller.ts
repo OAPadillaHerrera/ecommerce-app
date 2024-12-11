@@ -24,6 +24,7 @@ import { UUIDParamDto } from '../dtos/UUIDParamDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { FileValidationPipe } from '../common/pipes/file-validation.pipe';
+import { createProductDto } from './dtos/CreateProductDto';
 
 @Controller('products')
 export class ProductsController {
@@ -65,31 +66,16 @@ export class ProductsController {
     return this.productsService.createProduct(product);
   }
 
-    @Post('images')
-    @UseInterceptors(FileInterceptor('image'))
-    async getUserImages(@UploadedFile() file: Express.Multer.File) {
-      try {
-        if (!file) {
-          throw new Error('No se ha recibido ningún archivo');
-        }
-        console.log('Archivo recibido:', file);
-        const result = await this.cloudinaryService.uploadImage(file);
-        console.log('Resultado de la subida:', result);
-        return result;
-      } catch (error) {
-        console.error('Error al subir la imagen:', error.message);
-        throw new Error('Error al procesar la imagen: ' + error.message);
-      }
+    @Put(':id')
+    @UseGuards(AuthGuard, ValidateGuard)
+    async updateProduct(
+        @Param() params: UUIDParamDto, // Usa UUIDParamDto para validar el ID.
+        @Body() updateData: createProductDto // Usa UpdateProductDto para validar los datos del cuerpo.
+    ) {
+        const { id } = params; // Extrae el ID del DTO validado.
+        return this.productsService.updateProduct(id, updateData); // Pasa el ID y los datos validados al servicio.
     }
-    
 
-
-  @Put(':id')
-  @UseGuards(AuthGuard, ValidateGuard)
-  updateProduct(@Param() params: UUIDParamDto, @Body() updateData: Partial<Product>) {
-    const { id } = params;
-    return this.productsService.updateProduct(id, updateData);
-  }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
@@ -112,6 +98,7 @@ export class ProductsController {
   }
 
   @Put('/files/uploadImage/:id')
+  @UseGuards(AuthGuard)
 @UseInterceptors(FileInterceptor('file'))
 async uploadImageToProduct(
   @Param('id') id: string,

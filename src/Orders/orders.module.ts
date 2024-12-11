@@ -16,13 +16,14 @@ import { Orders } from "./orders.entity"; // Import the entity representing the 
 import { Users } from "../Users/users.entity"; // Import the entity representing the `Users` table.
 import { Products } from "../Products/products.entity"; // Import the entity representing the `Products` table.
 import { OrderDetails } from "../OrderDetails/orderdetails.entity"; // Import the entity representing the `OrderDetails` table.
+import { AuthModule } from "src/auth/auth.module";
 
 @Module ({
 
   imports: [
 
     TypeOrmModule.forFeature ([Orders, Users, Products, OrderDetails]), // Register entities with TypeORM for database operations.
-
+    AuthModule,
   ],
 
   providers: [OrdersService, OrdersRepository], // Declare the service and repository as providers for dependency injection.

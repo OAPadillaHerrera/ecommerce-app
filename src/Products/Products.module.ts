@@ -9,6 +9,7 @@ import { ProductsController } from './products.controller'; // Import the contro
 import { Categories } from '../Categories/categories.entity'; // Import the entity representing the `Categories` table.
 import { CategoriesModule } from '../Categories/categories.module'; // Import the `CategoriesModule` to enable category-related functionality.
 import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Import the `CloudinaryModule` for handling cloud-based media storage.
+import { AuthModule } from '../auth/auth.module'; // Ajusta la ruta según la estructura de tu proyecto.
 
 @Module ({
 
@@ -17,6 +18,7 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module'; // Import th
     TypeOrmModule.forFeature ([Products, Categories]), // Register `Products` and `Categories` entities with TypeORM for database operations.
     CategoriesModule, // Import the `CategoriesModule` to manage category relationships.
     CloudinaryModule, // Import the `CloudinaryModule` to enable media uploads and cloud storage.
+    AuthModule,
 
   ],
 

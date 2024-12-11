@@ -40,6 +40,14 @@ export class CreateUserDto {
   password?: string; // User's password.
 
   @IsOptional ()
+  @IsNotEmpty ({ message: 'Password is required.' })
+  @Matches (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,15}$/, {
+    message:
+      'Password must be 8-15 characters long, include an uppercase letter, a lowercase letter, a number, and a special character (!@#$%^&*).',
+  }) // Enforces a strong password format.
+  confirmPassword?: string; // User's password.
+
+  @IsOptional ()
   @IsNotEmpty ({ message: 'Address is required.' })
   @IsString ({ message: 'Address must be a string.' })
   @Length (3, 80, { message: 'Address must be between 3 and 80 characters.' })

@@ -61,11 +61,13 @@ export class UsersRepository {
             return userWithoutPassword;
         }
     
-      async deleteUser(id: string): Promise<void> {
+      async deleteUser(id: string): Promise</*void*/{ id: string } | null> {
         const result = await this.usersRepository.delete(id);
         if (result.affected === 0) {
           throw new Error('User not found');
         }
+
+        return { id };
       }
       
       async getPaginatedUsers(page: number, limit: number): Promise<[Users[], number]> {

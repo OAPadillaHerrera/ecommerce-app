@@ -12,13 +12,14 @@ import { UsersController } from "./users.controller"; // Import the controller l
 import { UsersRepository } from "./users.repository"; // Import the repository layer for interacting with the database for user data.
 import { Users } from "./users.entity"; // Import the entity that represents the `Users` table in the database.
 import { TypeOrmModule } from "@nestjs/typeorm"; // Import the TypeORM module for integrating entities and managing repositories.
+import { AuthModule } from "src/auth/auth.module";
 
 @Module ({
 
     imports: [
 
         TypeOrmModule.forFeature ([Users]), // Register the `Users` entity with TypeORM to enable database operations.
-        
+        AuthModule,
     ],
 
     providers: [UsersService, UsersRepository], // Declare the service and repository as providers for dependency injection.

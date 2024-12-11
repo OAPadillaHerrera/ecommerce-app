@@ -2,9 +2,10 @@
 
 import { Injectable} from "@nestjs/common";
 import { UsersRepository } from "./users.repository";
-import { User } from "./user.interface";
 import { CreateUserDto } from "./dtos/CreateUserDto";
-import { Users } from "./users.entity";
+import * as bcrypt from 'bcrypt';
+
+
 
 @Injectable ({})
 
@@ -14,28 +15,75 @@ export class UsersService {
       private usersRepository: UsersRepository,
     ) {}
 
-    getUsers() {
+    /*getUsers() {
     return this.usersRepository.getUsers();
-  }
+  }*/
+ 
+    async getUsers() {
+      const users = await this.usersRepository.getUsers();
+    
+      // Excluir el campo password de cada usuario
+      return users.map(({ password, ...userWithoutPassword }) => userWithoutPassword);
+    }
+    
 
-  getUserById(id: string) {
+
+  /*getUserById(id: string) {
     return this.usersRepository.getById(id);
-  }
+  }*/
 
-    async createUser(user: CreateUserDto): Promise<Omit<Users, 'password'>> {
-      const createdUser: Users = await this.usersRepository.createUser(user); // `createdUser` tiene `password`
-      const { password, ...userWithoutPassword } = createdUser; // Filtramos el campo `password`
-      return userWithoutPassword; // Devolvemos el objeto sin `password`
+    async getUserById(id: string) {
+      const user = await this.usersRepository.getById(id);
+    
+      // Excluir el campo password
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
 
-  }
+    async createUser(user: CreateUserDto): Promise</*Omit<Users, 'password'>*/{ id: string }> {
+      const { password, ...userData } = user;
   
-    async updateUser(id: string, updateData: Partial<CreateUserDto>): Promise<Omit<Users, 'password'>> {
+      // Hashear la contraseña
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Pasar los datos al repositorio para crear el usuario
+      const createdUser = await this.usersRepository.createUser({
+        ...userData,
+        password: hashedPassword, // Guardar la contraseña hasheada
+      });
+  
+      // Excluir la contraseña antes de retornar el usuario
+      /*const { password: _, ...userWithoutPassword } = createdUser;*/
+  
+      return /*userWithoutPassword*/{ id: createdUser.id };
+    }
+  
+  
+  
+    async updateUser(id: string, updateData: Partial<CreateUserDto>): Promise</*Omit<Users, 'password'*/{ id: string }> {
       // Invoca al repositorio y devuelve directamente el resultado
-      return this.usersRepository.updateUser(id, updateData);
+      const updateUser/*AGREGADO*/= /*return*/ this.usersRepository.updateUser(id, updateData);
+
+      if (!updateUser) {
+
+        throw new Error (`User with id ${id} not found`);
+      }
+
+      return { id:(await updateUser).id };
   }
+         
   
-  async deleteUser(id: string): Promise<void> {
-    await this.usersRepository.deleteUser(id);
+  async deleteUser(id: string): Promise</*void*/{ id: string }> {
+    const deletedUser/*AGREGADO*/ = await this.usersRepository.deleteUser(id);
+
+    if (!deletedUser) {
+
+      throw new Error (`User with id ${id} not found`);
+    }
+
+    return { id };
+
+
   }
 
   async getPaginatedUsers(page: number, limit: number) {

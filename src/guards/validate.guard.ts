@@ -162,7 +162,7 @@ function validateFieldType(field: string, value: any, entity: "User" | "Product"
             name: "string",
             description: "string",
             price: "number",
-            stock: "boolean",
+            stock: "number",
             imgUrl: "string",
             categories: "any",
 

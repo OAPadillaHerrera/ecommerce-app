@@ -1,10 +1,11 @@
 
 
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { ProductsRepository } from "./products.repository";
 import { CategoriesService } from "../Categories/categories.service";
 import { Product } from "./product.interface";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
+import { createProductDto } from "./dtos/CreateProductDto";
 
 @Injectable()
 export class ProductsService {
@@ -39,8 +40,18 @@ export class ProductsService {
   }
 
   // Actualizar un producto
-  updateProduct(id: /*number*/string, updateData: Partial<Product>) {
+  /*updateProduct(id: /*number*//*string, updateData: Partial<Product>) {
     return this.productsRepository.updateProduct(id, updateData);
+  }*/
+
+    async updateProduct(id: string, updateData: createProductDto) {
+      const product = await this.productsRepository.updateProduct(id, updateData);
+
+      if (!product) {
+          throw new NotFoundException('Product not found');
+      }
+
+      return this.productsRepository.updateProduct(id, updateData);
   }
 
   // Eliminar un producto

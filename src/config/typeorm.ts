@@ -12,7 +12,7 @@ import { Categories } from '../Categories/categories.entity'; // Import the Cate
 import { OrderDetails } from '../OrderDetails/orderdetails.entity'; // Import the OrderDetails entity.
 import { Users } from '../Users/users.entity'; // Import the Users entity.
 import { Products } from '../Products/products.entity'; // Import the Products entity.
-import { Orders } from '../Orders/orders.entity'; // Import the Orders entity.
+import { Orders } from '../Orders/orders.entity'; // Import the Orders entity
 
 
 dotenvConfig ({ path: '.env.development' }); // Load environment variables from the '.env.development' file.
@@ -27,8 +27,10 @@ const typeOrmConfigOptions: DataSourceOptions = {
   database: process.env.DB_NAME, // Name of the database.
   synchronize: false, // Disables auto-sync; use migrations instead for production safety.
   logging: true, // Enables query logging for debugging.
-  entities: [Categories, OrderDetails, Users, Products, Orders], // Entities registered for this data source.
-  migrations: ['dist/migrations/*.js'], // Location of migration files.
+  entities: [/*Categories, OrderDetails, Users, Products, Orders*/'dist/**/*.entity{.ts,.js}'], // Entities registered for this data source.
+  migrations: process.env.NODE_ENV === 'development'
+  ? ['src/migrations/*.ts']
+  : ['dist/migrations/*.js'],
 
 };
 
