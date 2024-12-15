@@ -14,9 +14,11 @@ import {
   IsEmail, // Validates the property is a valid email address.
   Length, // Sets minimum and maximum length constraints.
   Matches, // Validates the property against a regex pattern.
-  IsNumberString, // Ensures the property is a string of numbers.
+  IsNumberString,
+  isEmpty, // Ensures the property is a string of numbers.
 
 } from 'class-validator';
+import { Column } from 'typeorm';
 
 export class CreateUserDto {
 
@@ -47,6 +49,10 @@ export class CreateUserDto {
   }) // Enforces a strong password format.
   confirmPassword?: string; // User's password.
 
+  @IsOptional()
+  @Column ({ default: false })
+  isAdmin: string;
+
   @IsOptional ()
   @IsNotEmpty ({ message: 'Address is required.' })
   @IsString ({ message: 'Address must be a string.' })
@@ -69,4 +75,7 @@ export class CreateUserDto {
   @IsString ({ message: 'City must be a string.' })
   @Length (5, 20, { message: 'City must be between 5 and 20 characters.' })
   city?: string; // User's city.
+
+  roles?: string[]; // Opcional si no siempre está presente
+  
 }

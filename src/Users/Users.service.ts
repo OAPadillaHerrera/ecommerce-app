@@ -23,7 +23,7 @@ export class UsersService {
       const users = await this.usersRepository.getUsers();
     
       // Excluir el campo password de cada usuario
-      return users.map(({ password, ...userWithoutPassword }) => userWithoutPassword);
+      return users.map(({ password, isAdmin, ...userWithoutPassword }) => userWithoutPassword);
     }
     
 
@@ -36,7 +36,7 @@ export class UsersService {
       const user = await this.usersRepository.getById(id);
     
       // Excluir el campo password
-      const { password, ...userWithoutPassword } = user;
+      const { password, isAdmin, ...userWithoutPassword } = user;
       return userWithoutPassword;
     }
 
@@ -86,20 +86,40 @@ export class UsersService {
 
   }
 
-  async getPaginatedUsers(page: number, limit: number) {
-    const [users, totalUsers] = await this.usersRepository.getPaginatedUsers(page, limit);
+  /*async getPaginatedUsers(page: number, limit: number, /*isAdminFlag: boolean, boolean: any*//*includeisAdmin?: boolean) {
+    /*const [users, totalUsers] = await this.usersRepository.getPaginatedUsers(page, limit);
     return {
       users,
       totalUsers,
       totalPages: Math.ceil(totalUsers / limit),
       currentPage: page,
     };
-  }
+  }*/
 
+    async getPaginatedUsers(page: number, limit: number, includeisAdmin?: boolean) {
+      // Obtener usuarios paginados
+      const [users, totalUsers] = await this.usersRepository.getPaginatedUsers(page, limit);
+    
+      // Excluir el campo 'password' de cada usuario
+      const usersWithoutPassword = users.map(user => {
+        const { password, ...userWithoutPassword } = user; // Desestructurar y excluir 'password'
+        return userWithoutPassword; // Devolver el objeto sin el campo 'password'
+      });
+    
+      return {
+        users: usersWithoutPassword, // Usar la lista de usuarios sin el campo 'password'
+        totalUsers,
+        totalPages: Math.ceil(totalUsers / limit),
+        currentPage: page,
+      };
+    }
+    
+        
   async getUserWithOrders(userId: string): Promise<any> {
     return this.usersRepository.getUserWithOrders(userId);
   }
 }
+
 
 
     

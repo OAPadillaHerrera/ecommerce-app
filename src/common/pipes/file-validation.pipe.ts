@@ -1,32 +1,67 @@
 
 
+/**
+ * This file defines the `FileValidationPipe` class, which is responsible for validating 
+ * uploaded files in terms of presence, size, and MIME type.
+ * 
+ * It ensures that files meet specific requirements before further processing.
+ */
+
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
-@Injectable()
+@Injectable ()
+
 export class FileValidationPipe implements PipeTransform {
-  transform(file: Express.Multer.File) {
-    // Validar si el archivo está presente
+
+  /**
+   * Transforms and validates an uploaded file.
+   * 
+   * The validation includes:
+   * - Ensuring the file is provided.
+   * - Verifying the file size does not exceed 200 KB.
+   * - Checking that the file's MIME type is allowed (`image/jpeg`, `image/jpg`, `image/png`).
+   * 
+   * @param file - The uploaded file to validate.
+   * @returns The validated file if all checks pass.
+   * @throws BadRequestException if any validation fails.
+   */
+
+  transform (file: Express.Multer.File) {
+
+    // Check if the file is provided
     if (!file) {
-      throw new BadRequestException('No se ha proporcionado ningún archivo');
-    }
 
-    // Validar el tamaño del archivo (200 KB = 200 * 1024 bytes)
-    const maxSize = 200 * 1024;
+      throw new BadRequestException('No file has been provided');
+
+    }
+  
+    const maxSize = 200 * 1024; // Validate the file size (200 KB = 200 * 1024 bytes)
+
     if (file.size > maxSize) {
-      throw new BadRequestException(
-        `El archivo excede el tamaño máximo permitido de 200 KB. Tamaño recibido: ${(file.size / 1024).toFixed(2)} KB`,
+
+      throw new BadRequestException (
+
+        `The file exceeds the maximum allowed size of 200 KB. Received size: ${(file.size / 1024).toFixed(2)} KB`,
+
       );
+
     }
 
-    // Validar el tipo MIME del archivo
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg','image/png'];
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      throw new BadRequestException(
-        `El tipo de archivo no es válido. Tipos permitidos: ${allowedMimeTypes.join(', ')}`,
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];  // Validate the file's MIME type
+
+    if (!allowedMimeTypes.includes (file.mimetype)) {
+
+      throw new BadRequestException (
+
+        `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,
+
       );
+
     }
 
-    // Si pasa las validaciones, retorna el archivo
-    return file;
+    
+    return file; // Return the file if it passes all validations
+
   }
+
 }

@@ -28,6 +28,8 @@ export class Users {
     email: string; // Email address of the user, required and limited to 50 characters.
     @Column({ length: 20, nullable: false })
     password: string; // User's password, required and limited to 20 characters.
+    @Column ( { type: 'boolean', default: false})
+    isAdmin: string;
     @Column("int", { nullable: true })
     phone: number; // Optional phone number of the user.
     @Column({ length: 50, nullable: true })
@@ -36,6 +38,8 @@ export class Users {
     address: string; // Optional full address of the user.
     @Column({ length: 50, nullable: true })
     city: string; // Optional city of residence.
+    @Column('simple-array', { nullable: true }) // Especifica que roles es un array de strings
+    roles: string[];
     @OneToMany(() => Orders, (orders) => orders.users) 
     orders: Orders[]; // Relationship with the `Orders` entity: one user can have many orders.
     

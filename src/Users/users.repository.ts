@@ -16,7 +16,7 @@ export class UsersRepository {
     private readonly usersRepository: Repository<Users>,
   ) {}
     
-  private users: User [] = [
+  /*private users: User [] = [
     { id: 1, email: "user1@example.com", name: "John Doe", password: "password123", address: "123 Main St", phone: "+34 600123456", country: "Spain", city: "Madrid" },
     { id: 2, email: "user2@example.com", name: "Jane Smith", password: "password456", address: "456 Elm St", phone: "+34 600654321", country: "Spain", city: "Barcelona" },
     { id: 3, email: "user3@example.com", name: "Bob Johnson", password: "password789", address: "789 Pine St", phone: "+34 600789123", country: "Spain", city: "Galicia" },
@@ -27,7 +27,7 @@ export class UsersRepository {
     { id: 8, email: "user8@example.com", name: "Fiona Black", password: "password444", address: "505 Palm St", phone: "+34 600321654", country: "Spain", city: "Malaga" },
     { id: 9, email: "user9@example.com", name: "George Red", password: "password555", address: "606 Willow St", phone: "+34 600987321", country: "Spain", city: "Cordoba" },
     { id: 10, email: "user10@example.com", name: "Helen Grey", password: "password666", address: "707 Aspen St", phone: "+34 600123789", country: "Spain", city: "Alicante" },
-  ];
+  ];*/
   
       /* Obtener todos los usuarios */
       async getUsers(): Promise<Users[]> {
@@ -76,6 +76,7 @@ export class UsersRepository {
           take: limit,
         });
       }
+         
 
   /* Get user by ID, By only including the ID and his purchase orders Date (`date`).*/
   async getUserWithOrders(userId: string): Promise<any> {
@@ -104,10 +105,15 @@ export class UsersRepository {
 
       
 
-        async logUser(email: string): Promise<Users | null> {
+       async logUser(email: string): Promise<Users | null> {
           // Buscar usuario por email en la base de datos
-          return await this.usersRepository.findOne({ where: { email } });
+          return await this.usersRepository.findOne({ where: { email }, select: ['id', 'email', 'password', 'roles'] });
       }
+
+      
+          
+
+
       }
 
       

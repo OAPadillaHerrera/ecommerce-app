@@ -20,5 +20,6 @@ export interface User {
     phone: string; // Contact phone number of the user.
     country: string; // Country of residence.
     city: string; // City of residence.
+    roles: string[];
 
 }
