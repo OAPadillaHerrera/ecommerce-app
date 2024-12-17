@@ -1,11 +1,11 @@
 
 
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { UsersRepository } from '../Users/users.repository';
 import { LoginUserDto } from './dtos/LoginUserDto'; // Importa el DTO
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from 'src/Users/dtos/CreateUserDto';
-import { UsersService } from 'src/Users/users.service';
+import { CreateUserDto } from '../Users/dtos/CreateUserDto';
+import { UsersService } from '../Users/Users.service';
 import { JwtService } from '@nestjs/jwt';  // Importa JwtService aquí
 
 
@@ -112,11 +112,10 @@ export class AuthService {
             
           
 
-async signUp(user: CreateUserDto): Promise<{ id: string }> {
+async signUp(user: CreateUserDto): Promise<{id: string, password: string}> {
   // Delegar la creación de usuario al UsersService
   const createdUser = await this.usersService.createUser(user);
 
-  // Retornar solo el id del usuario creado
   return createdUser;
 }
 

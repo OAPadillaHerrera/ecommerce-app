@@ -4,6 +4,7 @@ import { Injectable} from "@nestjs/common";
 import { UsersRepository } from "./users.repository";
 import { CreateUserDto } from "./dtos/CreateUserDto";
 import * as bcrypt from 'bcrypt';
+import { Users } from "./users.entity";
 
 
 
@@ -13,6 +14,7 @@ export class UsersService {
 
     constructor (
       private usersRepository: UsersRepository,
+      
     ) {}
 
     /*getUsers() {
@@ -25,12 +27,6 @@ export class UsersService {
       // Excluir el campo password de cada usuario
       return users.map(({ password, isAdmin, ...userWithoutPassword }) => userWithoutPassword);
     }
-    
-
-
-  /*getUserById(id: string) {
-    return this.usersRepository.getById(id);
-  }*/
 
     async getUserById(id: string) {
       const user = await this.usersRepository.getById(id);
@@ -40,22 +36,22 @@ export class UsersService {
       return userWithoutPassword;
     }
 
-    async createUser(user: CreateUserDto): Promise</*Omit<Users, 'password'>*/{ id: string }> {
+    async createUser(user: CreateUserDto): Promise</*Omit<Users, 'password'>*/{id: string, password: string}> {
       const { password, ...userData } = user;
   
       // Hashear la contraseña
       const hashedPassword = await bcrypt.hash(password, 10);
-  
+        
       // Pasar los datos al repositorio para crear el usuario
       const createdUser = await this.usersRepository.createUser({
         ...userData,
         password: hashedPassword, // Guardar la contraseña hasheada
       });
-  
+
       // Excluir la contraseña antes de retornar el usuario
       /*const { password: _, ...userWithoutPassword } = createdUser;*/
   
-      return /*userWithoutPassword*/{ id: createdUser.id };
+      return /*userWithoutPassword*/{ id: createdUser.id,  password: createdUser.password};
     }
   
   
@@ -86,15 +82,7 @@ export class UsersService {
 
   }
 
-  /*async getPaginatedUsers(page: number, limit: number, /*isAdminFlag: boolean, boolean: any*//*includeisAdmin?: boolean) {
-    /*const [users, totalUsers] = await this.usersRepository.getPaginatedUsers(page, limit);
-    return {
-      users,
-      totalUsers,
-      totalPages: Math.ceil(totalUsers / limit),
-      currentPage: page,
-    };
-  }*/
+  
 
     async getPaginatedUsers(page: number, limit: number, includeisAdmin?: boolean) {
       // Obtener usuarios paginados

@@ -4,8 +4,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from './Products/products.module';
-import { UsersModule } from './Users/users.module';
 import { AuthModule } from './Auth/auth.module';
+import { UsersModule } from './Users/users.module';
 import { CategoriesModule } from './Categories/categories.module';
 import { OrdersModule } from './Orders/orders.module';
 import { typeOrmConfig } from './config/typeorm';
@@ -39,8 +39,8 @@ import { typeOrmConfig } from './config/typeorm';
 
     // Otros módulos de tu aplicación
     ProductsModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
     CategoriesModule,
     OrdersModule,
   ],
