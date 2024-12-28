@@ -34,9 +34,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { FileValidationPipe } from '../common/pipes/file-validation.pipe';
 import { createProductDto } from './dtos/CreateProductDto';
-import { Roles } from 'src/decorators/roles.decorators';
 import { Role } from 'src/roles.enum';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { Roles } from 'src/decorators/roles.decorators';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
+
 
 @Controller ('products')
 
@@ -82,6 +84,7 @@ export class ProductsController {
    * @returns A paginated list of products.
    */
 
+  @ApiBearerAuth ()
   @Get ()
   @UseGuards (AuthGuard)
 
@@ -125,15 +128,23 @@ export class ProductsController {
    * @returns The newly created product.
    */
 
-  @Post ('/all')
-  @UseGuards(AuthGuard, ValidateGuard)
-
-  createProduct (@Body () product: Product) {
-
-    return this.productsService.createProduct 
-    (product);
-
-  }
+    @ApiBearerAuth()
+    @Post('/all')
+    @UseGuards(AuthGuard, ValidateGuard)
+    @ApiBody({ type: createProductDto })
+    createProduct(@Body() product: createProductDto) {
+      // Aseguramos que los campos obligatorios estén presentes
+      const productToCreate: Omit<Product, 'id'> = {
+        name: product.name || '', // Asigna un valor predeterminado si es opcional
+        description: product.description || '', // Asigna un valor predeterminado
+        price: product.price || 0, // Asigna un valor predeterminado
+        stock: product.stock || 0, // Asigna un valor predeterminado
+        imgUrl: product.imgUrl || '',
+        categories: product.categories || '',
+      };
+  
+      return this.productsService.createProduct(productToCreate);
+    }
 
   /**
    * Handles `PUT /products/:id`.
@@ -145,6 +156,7 @@ export class ProductsController {
    * @returns The updated product.
    */
 
+  @ApiBearerAuth ()
   @Put (':id')
   @Roles (Role.Admin) 
   @UseGuards (AuthGuard, ValidateGuard, RolesGuard)
@@ -170,6 +182,7 @@ export class ProductsController {
    * @returns Confirmation of the deletion.
    */
 
+  @ApiBearerAuth ()
   @Delete (':id')
   @UseGuards (AuthGuard)
 
@@ -217,19 +230,27 @@ export class ProductsController {
    * @returns The product with the updated image.
    */
 
-  @Put ('/files/uploadImage/:id')
-  @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor ('file'))
-
-  async uploadImageToProduct (
-
-    @Param('id') id: string,
-    @UploadedFile(FileValidationPipe) file: Express.Multer.File,
-
-  ) {
-
-    return this.productsService.uploadProductImage(id, file);
-
-  }
+    @ApiBearerAuth()
+    @Put('/files/uploadImage/:id')
+    @UseGuards(AuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiConsumes('multipart/form-data') // Indica que el endpoint consume multipart/form-data
+    @ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          file: {
+            type: 'string',
+            format: 'binary', // Formato para archivos
+          },
+        },
+      },
+    })
+    async uploadImageToProduct(
+      @Param('id') id: string,
+      @UploadedFile(FileValidationPipe) file: Express.Multer.File,
+    ) {
+      return this.productsService.uploadProductImage(id, file);
+    }
   
 }

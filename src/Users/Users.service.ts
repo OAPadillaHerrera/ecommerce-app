@@ -41,6 +41,7 @@ export class UsersService {
   
       // Hashear la contraseña
       const hashedPassword = await bcrypt.hash(password, 10);
+      console.log (hashedPassword);
         
       // Pasar los datos al repositorio para crear el usuario
       const createdUser = await this.usersRepository.createUser({

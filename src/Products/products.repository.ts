@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { Products } from "./products.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./product.interface";
-import { Categories } from "src/Categories/categories.entity";
+import { Categories } from "../Categories/categories.entity";
 
 @Injectable()
 export class ProductsRepository {

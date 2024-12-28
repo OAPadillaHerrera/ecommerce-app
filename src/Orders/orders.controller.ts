@@ -11,6 +11,7 @@ import { Controller, Get, Post, Body, Param, BadRequestException, ParseUUIDPipe,
 import { OrdersService } from "./orders.service";
 import { CreateOrderDto, validateProducts } from "./dtos/CreateOrderDto";
 import { AuthGuard } from "src/Auth/AuthGuard";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller ("orders")
 export class OrdersController {
@@ -32,6 +33,7 @@ export class OrdersController {
    * @returns The order details with associated information.
    */
 
+  @ApiBearerAuth ()
   @Get (':id')
   @UseGuards (AuthGuard)
 
@@ -51,8 +53,8 @@ export class OrdersController {
    * @throws BadRequestException if product validation fails.
    */
 
+  @ApiBearerAuth ()
   @Post ()
-
   @UseGuards (AuthGuard)
 
   async addOrder (@Body () createOrderDto: CreateOrderDto): Promise<any> {

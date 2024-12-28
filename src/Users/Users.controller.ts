@@ -33,6 +33,7 @@ import { UUIDParamDto } from '../dtos/UUIDParamDto';
 import { Roles } from 'src/decorators/roles.decorators';
 import { Role } from 'src/roles.enum';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller ('users')
 
@@ -54,6 +55,7 @@ export class UsersController {
    * @returns A list of all users.
    */
 
+  @ApiBearerAuth ()
   @Get ('/all')
   @UseGuards (AuthGuard)
 
@@ -74,6 +76,7 @@ export class UsersController {
    * @returns A paginated list of users.
    */
 
+  @ApiBearerAuth ()
   @Get ()
   @Roles (Role.Admin)
   @UseGuards (AuthGuard, RolesGuard)
@@ -103,7 +106,7 @@ export class UsersController {
 
     let isAdminFlag = false;
 
-    if (includeisAdmin === 'true') {
+    if (includeisAdmin === 't') {
 
       isAdminFlag = true;
 
@@ -125,6 +128,7 @@ export class UsersController {
    * @returns A message indicating access to a protected route.
    */
 
+  @ApiBearerAuth ()
   @Get ('admin')
   @Roles (Role.Admin)
   @UseGuards (AuthGuard, RolesGuard)
@@ -145,6 +149,7 @@ export class UsersController {
    * @returns The user object with additional information.
    */
 
+  @ApiBearerAuth ()
   @Get (':id')
   @UseGuards (AuthGuard)
   @UsePipes (new ValidationPipe())
@@ -168,6 +173,8 @@ export class UsersController {
    * @param createUserDto - The DTO containing user creation details.
    * @returns The created user object.
    */
+  
+  @ApiBearerAuth ()
   @Post('/all')
   @UseGuards(AuthGuard, ValidateGuard)
   async createUser(@Body() createUserDto: CreateUserDto) {
@@ -183,6 +190,8 @@ export class UsersController {
    * @param updateUserDto - The DTO containing the updated user details.
    * @returns The updated user object.
    */
+
+  @ApiBearerAuth ()
   @Put (':id')
   @UseGuards (AuthGuard, ValidateGuard)
   @UsePipes (new ValidationPipe())
@@ -208,6 +217,7 @@ export class UsersController {
    * @returns A confirmation message or the deleted user's ID.
    */
 
+  @ApiBearerAuth ()
   @Delete (':id')
   @UseGuards (AuthGuard)
   @UsePipes (new ValidationPipe())

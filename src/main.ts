@@ -10,6 +10,8 @@ import { NestFactory } from '@nestjs/core'; // Import the NestFactory to create 
 import { AppModule } from './app.module'; // Import the root module of the application.
 import { LoggerMiddleware } from './Middlewares/logger.middleware'; // Import middleware for logging requests.
 import { ValidationPipe } from '@nestjs/common'; // Import the validation pipe for request validation.
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 
 async function bootstrap () {
 
@@ -28,6 +30,18 @@ async function bootstrap () {
     }),
 
   );
+
+  const swaggerConfig = new DocumentBuilder ()
+    .setTitle ("PI, M4, ECOMMERCE")
+    .setDescription (
+    "This is an API built by using Nest.js, to be employed in Henry Module #4 Full Stack Developer Career Backend specialty."
+    )
+    .setVersion ("1.0")
+    .addBearerAuth ()
+    .build ();
+
+  const document = SwaggerModule.createDocument (app, swaggerConfig);
+  SwaggerModule.setup ("api", app, document);
 
   await app.listen (process.env.PORT ?? 3000); // Start the server on the specified port or default to 3000.
   

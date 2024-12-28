@@ -6,16 +6,19 @@
  * The `validateProducts` function provides additional validation for each product in the array.
  */
 
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID, IsArray, ArrayMinSize } from 'class-validator'; // Importing validation decorators.
 
 export class CreateOrderDto {
 
   @IsNotEmpty ({ message: 'The userId field cannot be empty.' }) // Ensures the field is not empty.
   @IsUUID ('4', { message: 'The userId field must be a valid UUID.' }) // Validates the field as a UUID (version 4).
+  @ApiProperty ( { description: 'userId: The userId field cannot be empty. The userId field must be a valid UUID.', })
   userId: string; // The ID of the user placing the order.
 
   @IsArray ({ message: 'The products field must be an array.' }) // Ensures the field is an array.
   @ArrayMinSize (1, { message: 'The products array must contain at least one item.' }) // Ensures the array has at least one item.
+  @ApiProperty ( { description: 'products: The products field must be an array. The products array must contain at least one item.', })
   products: Record<string, any>[]; // Represents a dynamic structure for objects within the array.
 }
 
