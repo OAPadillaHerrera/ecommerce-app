@@ -1,12 +1,14 @@
 
 
 /**
+ 
  * This file defines the `Product` interface, which represents 
  * the structure of a product entity in the application.
  * 
  * The `Product` interface includes fields for product details, 
  * pricing, stock, and categorization. It is used to ensure 
  * consistency in how product data is created, stored, and accessed.
+ 
  */
 
 export interface Product {

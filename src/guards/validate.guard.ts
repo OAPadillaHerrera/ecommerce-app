@@ -1,10 +1,12 @@
 
 
 /**
+ 
  * This file provides validation logic for HTTP requests targeting
  * User and Product entities. It includes specific rules for each
  * entity and a guard to enforce these validations.
- */
+
+*/
 
 import { CanActivate, ExecutionContext, Injectable, BadRequestException } from "@nestjs/common"; // Import required NestJS components.
 
@@ -126,7 +128,7 @@ function validateProductRequest (method: string, body: any): boolean {
 
             if (!validateFieldType (field, body[field], "Product")) { // Validate field types.
 
-                console.error(`Validation error: ${field} has an invalid type for Product.`);
+                console.error (`Validation error: ${field} has an invalid type for Product.`);
                 return false;
 
             }
@@ -139,7 +141,7 @@ function validateProductRequest (method: string, body: any): boolean {
 
 }
 
-function validateFieldType(field: string, value: any, entity: "User" | "Product"): boolean {
+function validateFieldType (field: string, value: any, entity: "User" | "Product"): boolean {
 
     const fieldTypes: Record<"User" | "Product", Record<string, string>> = {
 

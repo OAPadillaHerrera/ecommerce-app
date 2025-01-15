@@ -1,85 +1,62 @@
 
 
 /**
- * This file defines the `OrdersController` class, which handles all order-related 
- * operations and routes in the application.
- * 
- * It provides endpoints to retrieve a specific order and create a new order.
+ 
+ * This file defines the `OrdersController` class, which handles order-related operations and routes.
+ * It provides endpoints to retrieve a specific order and create a new order. Authentication and validation 
+ * are applied to ensure secure and consistent data handling.
+ 
  */
 
 import { Controller, Get, Post, Body, Param, BadRequestException, ParseUUIDPipe, UseGuards } from "@nestjs/common";
-import { OrdersService } from "./orders.service";
-import { CreateOrderDto, validateProducts } from "./dtos/CreateOrderDto";
-import { AuthGuard } from "src/Auth/AuthGuard";
-import { ApiBearerAuth } from "@nestjs/swagger";
 
-@Controller ("orders")
+import { OrdersService } from "./orders.service"; // Service for order-related business logic.
+import { CreateOrderDto, validateProducts } from "./dtos/CreateOrderDto"; // DTO and validation for orders.
+import { AuthGuard } from "src/Auth/AuthGuard"; // Guard for authentication.
+import { ApiBearerAuth } from "@nestjs/swagger"; // Swagger decorator for API authentication.
+
+@Controller ("orders") // Controller for order routes.
+
 export class OrdersController {
 
-  /**
-   * Initializes the `OrdersController` with an instance of `OrdersService`.
-   * 
-   * @param ordersService - Service for managing order-related business logic.
-   */
-
-  constructor (private readonly ordersService: OrdersService) {}
-
-  /**
-   * Handles `GET /orders/:id`.
-   * 
-   * Retrieves a specific order by its ID. Requires authentication.
-   * 
-   * @param id - The ID of the order to retrieve.
-   * @returns The order details with associated information.
-   */
+  constructor (private readonly ordersService: OrdersService) {} // Injects OrdersService.
 
   @ApiBearerAuth ()
-  @Get (':id')
-  @UseGuards (AuthGuard)
+  @Get (':id') // Endpoint: GET /orders/:id.
+  @UseGuards (AuthGuard) // Requires authentication.
 
   async getOrder (@Param ('id', ParseUUIDPipe) id: string): Promise<any> {
 
-    return this.ordersService.getOrder(id);
+    return this.ordersService.getOrder (id); // Retrieves order by ID.
 
   }
-  
-  /**
-   * Handles `POST /orders`.
-   * 
-   * Creates a new order. Requires authentication and validates the product data.
-   * 
-   * @param createOrderDto - The DTO containing user ID and product details for the order.
-   * @returns A confirmation of the created order.
-   * @throws BadRequestException if product validation fails.
-   */
 
   @ApiBearerAuth ()
-  @Post ()
-  @UseGuards (AuthGuard)
+  @Post () // Endpoint: POST /orders.
+  @UseGuards (AuthGuard) // Requires authentication.
 
   async addOrder (@Body () createOrderDto: CreateOrderDto): Promise<any> {
 
     try {
 
-      validateProducts (createOrderDto.products);
+      validateProducts (createOrderDto.products); // Validates product data.
 
       return this.ordersService.addOrder (
 
-        createOrderDto.userId, 
-        createOrderDto.products.map ((p) => p.id),
+        createOrderDto.userId, // User ID for the order.
+        createOrderDto.products.map ((p) => p.id), // Extracts product IDs.
 
       );
 
     } catch (error) {
 
-      throw new BadRequestException (error.message);
+      throw new BadRequestException (error.message); // Handles validation errors.
 
     }
 
   }
 
 }
-
 
 
 

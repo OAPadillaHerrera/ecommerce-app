@@ -1,51 +1,36 @@
 
 
 /**
- * This file defines the `CloudinaryController` class, which handles the uploading 
- * of files to Cloudinary using a dedicated service.
- * 
- * It provides an endpoint to upload a file and process it for storage.
- */
+ 
+ * This file defines the `CloudinaryController` class, which handles file uploads to Cloudinary.
+ * It provides an endpoint to upload files and processes them using the `CloudinaryService`.
+ 
+*/
 
 import { Controller, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { CloudinaryService } from './cloudinary.service';
+import { FileInterceptor } from '@nestjs/platform-express'; // Interceptor for handling file uploads.
+import { CloudinaryService } from './cloudinary.service'; // Service for interacting with Cloudinary.
 
-@Controller('cloudinary')
+@Controller ('cloudinary') // Controller for Cloudinary-related routes.
 
 export class CloudinaryController {
 
-  /**
-   * Initializes the `CloudinaryController` with an instance of `CloudinaryService`.
-   * 
-   * @param cloudinaryService - Service responsible for uploading files to Cloudinary.
-   */
+  constructor (private readonly cloudinaryService: CloudinaryService) {} // Injects CloudinaryService.
 
-  constructor (private readonly cloudinaryService: CloudinaryService) {}
-
-  /**
-   * Handles `POST /cloudinary/upload`.
-   * 
-   * Uploads a file to Cloudinary. Validates that a file has been received.
-   * 
-   * @param file - The uploaded file to be sent to Cloudinary.
-   * @returns The result of the upload operation, including file details.
-   * @throws Error if no file is received.
-   */
-
-  @Post ('upload')
-  @UseInterceptors (FileInterceptor ('file'))
+  @Post ('upload') // Endpoint: POST /cloudinary/upload.
+  @UseInterceptors (FileInterceptor ('file')) // Intercepts file uploads.
 
   async uploadFile (@UploadedFile () file: Express.Multer.File) {
 
-    if (!file) {
+    if (!file) { // Validates if a file was uploaded.
 
-      throw new Error ("No file have been received");
+      throw new Error ("No file has been received");
 
     }
 
-    return this.cloudinaryService.uploadImage (file);
+    return this.cloudinaryService.uploadImage (file); // Uploads the file to Cloudinary.
 
   }
-
+  
 }
+

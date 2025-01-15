@@ -1,130 +1,158 @@
 
 
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { ProductsRepository } from "./products.repository";
-import { CategoriesService } from "../Categories/categories.service";
-import { Product } from "./product.interface";
-import { CloudinaryService } from "../cloudinary/cloudinary.service";
-import { createProductDto } from "./dtos/CreateProductDto";
+/* 
 
-@Injectable()
+This file defines the `ProductsService` class, which manages product-related operations in a NestJS application. 
+It interacts with `ProductsRepository` for database operations, `CategoriesService` for category validation, and 
+`CloudinaryService` for handling image uploads. Additional features include product seeding and pagination.
+
+*/
+
+import { Injectable, NotFoundException } from "@nestjs/common"; // Import Injectable and NotFoundException from NestJS.
+import { ProductsRepository } from "./products.repository"; // Import ProductsRepository for product data management.
+import { CategoriesService } from "../Categories/categories.service"; // Import CategoriesService for category operations.
+import { Product } from "./product.interface"; // Import Product interface for type safety.
+import { CloudinaryService } from "../cloudinary/cloudinary.service"; // Import CloudinaryService for image uploads.
+import { createProductDto } from "./dtos/CreateProductDto"; // Import createProductDto for product creation validation.
+
+@Injectable () // Mark this class as injectable for dependency injection.
+
 export class ProductsService {
-  constructor(
-    private readonly productsRepository: ProductsRepository,
-    private readonly categoriesService: CategoriesService,
-    private readonly cloudinaryService: CloudinaryService, 
+
+  constructor (
+
+    private readonly productsRepository: ProductsRepository, // Inject ProductsRepository.
+    private readonly categoriesService: CategoriesService, // Inject CategoriesService.
+    private readonly cloudinaryService: CloudinaryService, // Inject CloudinaryService.
+
   ) {}
 
-  // Obtener todos los productos
-  getProducts() {
-    return this.productsRepository.getProducts();
+  getProducts () { // Method to retrieve all products.
+
+    return this.productsRepository.getProducts (); // Fetch all products from the repository.
+
   }
 
-  // Obtener producto por ID
-  getProductById(id: /*number*/string) {
-    return this.productsRepository.getById(id);
+  getProductById (id: string) { // Method to retrieve a product by ID.
+
+    return this.productsRepository.getById (id); // Fetch product by ID from the repository.
+
   }
 
-  // Crear un nuevo producto
-  async createProduct(product: Omit<Product, "id">): Promise<{ id: string }> {
-    // Verificar si la categoría existe
-    const categoryExists = await this.categoriesService.findByName(product.categories);
-    if (!categoryExists) {
-      throw new Error(`Categoría no encontrada: ${product.categories}`);
+  async createProduct (product: /*Omit<Product, "id">*/createProductDto): Promise<{ id: string }> { // Method to create a new product.
+
+    const categoryExists = await this.categoriesService.findByName (product.categories); // Check if the category exists.
+
+    if (!categoryExists) { // If the category doesn't exist.
+
+      throw new Error (`Category not found: ${product.categories}`); // Throw an error.
+
     }
 
-    return this.productsRepository.createProduct({
-      ...product,
-      categories: product.categories, // Sigue siendo string
+    return this.productsRepository.createProduct ({ // Create the product.
+
+      ...product, // Spread product properties.
+      categories: product.categories, // Pass categories as a string.
+
     });
+
   }
 
-  // Actualizar un producto
-  /*updateProduct(id: /*number*//*string, updateData: Partial<Product>) {
-    return this.productsRepository.updateProduct(id, updateData);
-  }*/
+  async updateProduct (id: string, updateData: createProductDto) { // Method to update a product.
 
-    async updateProduct(id: string, updateData: createProductDto) {
-      const product = await this.productsRepository.updateProduct(id, updateData);
+    const product = await this.productsRepository.updateProduct (id, updateData); // Attempt to update the product.
 
-      if (!product) {
-          throw new NotFoundException('Product not found');
-      }
+    if (!product) { // If the product doesn't exist.
 
-      return this.productsRepository.updateProduct(id, updateData);
+      throw new NotFoundException ('Product not found'); // Throw a NotFoundException.
+
+    }
+
+    return this.productsRepository.updateProduct (id, updateData); // Return the updated product.
+
   }
 
-  // Eliminar un producto
-  deleteProduct(id: /*number*/string) {
-    return this.productsRepository.deleteProduct(id);
+  deleteProduct (id: string) { // Method to delete a product.
+
+    return this.productsRepository.deleteProduct (id); // Delete the product by ID.
+
   }
 
-  // Obtener productos paginados
-async getPaginatedProducts(page: number, limit: number) {
-  const result = await this.productsRepository.getPaginatedProducts(page, limit);
-  return result;
-}
+  async getPaginatedProducts (page: number, limit: number) { // Method to retrieve paginated products.
 
+    const result = await this.productsRepository.getPaginatedProducts (page, limit); // Fetch paginated products.
+    return result; // Return the paginated result.
 
+  }
 
-  // Sembrar productos desde un archivo
-  async seedProductsFromFile(filePath: string): Promise<string> {
+  async seedProductsFromFile (filePath: string): Promise<string> { // Method to seed products from a file.
+
     try {
-      const products = require(filePath); // Carga el archivo
-      console.log(`Productos cargados: ${products.length}`);
-  
-      for (const product of products) {
-        // Busca la categoría en la base de datos
-        const category = await this.categoriesService.findByName(product.category);
-        if (!category) {
-          console.log(`Creando categoría: ${product.category}`);
-          await this.categoriesService.addCategories({ name: product.category });
+
+      const products = require (filePath); // Load the file.
+      
+      for (const product of products) { // Iterate over each product.
+
+        const category = await this.categoriesService.findByName (product.category); // Check if the category exists.
+
+        if (!category) { // If the category doesn't exist.
+          
+          await this.categoriesService.addCategories ({ name: product.category }); // Create the category.
+
         }
-  
-        // Verifica si el producto ya existe
-        const productExists = await this.productsRepository.findByName(product.name);
-        if (productExists) {
-          console.log(`Producto duplicado omitido: ${product.name}`);
-          continue;
+
+        const productExists = await this.productsRepository.findByName (product.name); // Check if the product exists.
+
+        if (productExists) { // If the product already exists.
+
+          continue; // Skip to the next product.
+
         }
-  
-        // Crea el producto
-        await this.createProduct({
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          stock: product.stock,
-          imgUrl: product.imgUrl || "default-image-url.jpg",
-          categories: product.category, // Pasar el nombre de la categoría
+
+        await this.createProduct ({ // Create the product.
+
+          name: product.name, // Set the product name.
+          description: product.description, // Set the description.
+          price: product.price, // Set the price.
+          stock: product.stock, // Set the stock.
+          imgUrl: product.imgUrl || "default-image-url.jpg", // Use default image URL if none is provided.
+          categories: product.category, // Pass the category name.
+
         });
+
       }
-  
-      return "Productos sembrados exitosamente.";
-    } catch (error) {
-      console.error("Error al sembrar productos:", error.message);
-      throw error;
+
+      return "Products seeded successfully."; // Return success message.
+
+    } catch (error) { // Handle any errors.
+
+        throw error; // Re-throw the error.
+
     }
+
   }
 
-  async uploadProductImage(productId: string, file: Express.Multer.File): Promise<{ id: string }> {
-    const product = await this.getProductById(productId);
-  
-    if (!product) {
-      throw new Error('Producto no encontrado');
+  async uploadProductImage (productId: string, file: Express.Multer.File): Promise<{ id: string }> { // Method to upload a product image.
+
+    const product = await this.getProductById (productId); // Fetch the product by ID.
+
+    if (!product) { // If the product doesn't exist.
+
+      throw new Error ('Product not found'); // Throw an error.
     }
-  
-    if (!file) {
-      throw new Error('No se ha proporcionado un archivo');
+
+    if (!file) { // If no file is provided.
+
+      throw new Error ('A file has not been provided'); // Throw an error.
+
     }
-  
-    const uploadResult = await this.cloudinaryService.uploadImage(file);
-  
-    return this.productsRepository.updateProduct(productId, { imgUrl: uploadResult.secure_url });
-  } 
+
+    const uploadResult = await this.cloudinaryService.uploadImage (file); // Upload the file to Cloudinary.
+    return this.productsRepository.updateProduct (productId, { imgUrl: uploadResult.secure_url }); // Update the product with the image URL.
+
+  }
   
 }
-
-
 
 
 

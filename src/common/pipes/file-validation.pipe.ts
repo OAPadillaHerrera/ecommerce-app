@@ -1,11 +1,13 @@
 
 
 /**
+ 
  * This file defines the `FileValidationPipe` class, which is responsible for validating 
  * uploaded files in terms of presence, size, and MIME type.
  * 
  * It ensures that files meet specific requirements before further processing.
- */
+
+*/
 
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
@@ -28,14 +30,14 @@ export class FileValidationPipe implements PipeTransform {
 
   transform (file: Express.Multer.File) {
 
-    // Check if the file is provided
+    // Check if the file is provided.
     if (!file) {
 
       throw new BadRequestException('No file has been provided');
 
     }
   
-    const maxSize = 200 * 1024; // Validate the file size (200 KB = 200 * 1024 bytes)
+    const maxSize = 200 * 1024; // Validate the file size (200 KB = 200 * 1024 bytes).
 
     if (file.size > maxSize) {
 
@@ -47,7 +49,7 @@ export class FileValidationPipe implements PipeTransform {
 
     }
 
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];  // Validate the file's MIME type
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];  // Validate the file's MIME type.
 
     if (!allowedMimeTypes.includes (file.mimetype)) {
 
@@ -60,7 +62,7 @@ export class FileValidationPipe implements PipeTransform {
     }
 
     
-    return file; // Return the file if it passes all validations
+    return file; // Return the file if it passes all validations.
 
   }
 

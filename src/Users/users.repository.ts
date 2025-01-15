@@ -1,107 +1,137 @@
 
 
-import {Injectable} from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Users } from "./users.entity";
-import { User } from './user.interface';
-import { Repository } from "typeorm";
-import { CreateUserDto } from "./dtos/CreateUserDto";
+/*
 
-@Injectable ()
+This file defines the `UsersRepository` class, which manages interactions with the `Users` entity in a NestJS application. 
+It uses TypeORM to perform CRUD operations, handle user-related data, and provide advanced functionalities like paginated 
+queries and relations with other entities.
+
+*/
+
+import { Injectable } from "@nestjs/common"; // Import Injectable decorator from NestJS.
+import { InjectRepository } from "@nestjs/typeorm"; // Import InjectRepository to inject a TypeORM repository.
+import { Users } from "./users.entity"; // Import Users entity for database operations.
+import { Repository } from "typeorm"; // Import Repository to interact with the database.
+import { CreateUserDto } from "./dtos/CreateUserDto"; // Import DTO for user creation validation.
+
+@Injectable () // Mark this class as injectable for dependency injection.
 
 export class UsersRepository {
 
-  constructor(
-    @InjectRepository(Users)
-    private readonly usersRepository: Repository<Users>,
-  ) {}    
-  
-      /* Obtener todos los usuarios */
-      async getUsers(): Promise<Users[]> {
-        return this.usersRepository.find(); // Delegar al repositorio interno
-      }
-    
-      async getById(id: string): Promise<Users | null> {
-        return this.usersRepository.findOne({ where: { id } });
-      }
+  constructor (
 
-        async createUser(userDto: CreateUserDto): Promise<Users> {
-          const newUser = this.usersRepository.create(userDto);
+    @InjectRepository (Users) // Inject the TypeORM repository for the Users entity.
+    private readonly usersRepository: Repository <Users>, // Define the repository as a private readonly property.
 
-          return this.usersRepository.save(newUser); 
-      }
+  ) {}
 
-          async updateUser(id: string, userDto: Partial<CreateUserDto>): Promise<Omit<Users, 'password'>> {
-            // Buscar el usuario por su ID
-            const user = await this.usersRepository.findOne({ where: { id } });
-            if (!user) {
-                throw new Error(`User with ID ${id} not found`);
-            }
-        
-            // Actualizar los campos proporcionados en el DTO
-            Object.assign(user, userDto);
-        
-            // Guardar los cambios en la base de datos
-            const updatedUser = await this.usersRepository.save(user);
-        
-            // Excluir el campo 'password' de la respuesta
-            const { password, ...userWithoutPassword } = updatedUser;
-            return userWithoutPassword;
-        }
-    
-      async deleteUser(id: string): Promise</*void*/{ id: string } | null> {
-        const result = await this.usersRepository.delete(id);
-        if (result.affected === 0) {
-          throw new Error('User not found');
-        }
+  async getUsers (): Promise<Users[]> { // Method to fetch all users.
 
-        return { id };
-      }
-      
-      async getPaginatedUsers(page: number, limit: number): Promise<[Users[], number]> {
-        return this.usersRepository.findAndCount({
-          skip: (page - 1) * limit,
-          take: limit,
-        });
-      }
-         
+    return this.usersRepository.find (); // Delegate to the TypeORM repository.
 
-  /* Get user by ID, By only including the ID and his purchase orders Date (`date`).*/
-  async getUserWithOrders(userId: string): Promise<any> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId }, // Search a user by ID.
-      relations: ["orders"], // Related orders are included.
-    });
-
-    if (!user) {
-      throw new Error("User not found.");
-    }
-
-    /* To build answer filtered.*/
-    const filteredUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      orders: user.orders.map((order) => ({
-        id: order.id,
-        date: order.date, // Only ID and Date are included in eeach order.
-      })),
-    };
-
-    return filteredUser;
   }
 
-      
+  async getById (id: string): Promise<Users | null> { // Method to fetch a user by ID.
 
-       async logUser(email: string): Promise<Users | null> {
-          // Buscar usuario por email en la base de datos
-          return await this.usersRepository.findOne({ where: { email }, select: ['id', 'email', 'password', 'roles'] });
-      }
+    return this.usersRepository.findOne ({ where: { id } }); // Find a user by ID.
 
-      }
+  }
 
-      
-    
+  async createUser (userDto: CreateUserDto): Promise<Users> { // Method to create a new user.
+
+    const newUser = this.usersRepository.create (userDto); // Create a new user instance from the DTO.
+    return this.usersRepository.save (newUser); // Save the new user to the database.
+
+  }
+
+  async updateUser (id: string, userDto: Partial<CreateUserDto>): Promise<Omit<Users, 'password'>> { // Method to update a user.
+    const user = await this.usersRepository.findOne ({ where: { id } }); // Find the user by ID.
+
+    if (!user) { // If user is not found.
+
+      throw new Error(`User with ID ${id} not found`); // Throw an error.
+
+    }
+
+    Object.assign (user, userDto); // Update user fields with DTO values.
+    const updatedUser = await this.usersRepository.save (user); // Save changes to the database.
+
+    const { password, ...userWithoutPassword } = updatedUser; // Exclude the password field from the response.
+    return userWithoutPassword; // Return the user object without the password.
+
+  }
+
+  async deleteUser (id: string): Promise<{ id: string } | null> { // Method to delete a user.
+
+    const result = await this.usersRepository.delete (id); // Attempt to delete the user by ID.
+
+    if (result.affected === 0) { // If no rows were affected.
+
+      throw new Error ('User not found'); // Throw an error.
+
+    }
+
+    return { id }; // Return the ID of the deleted user.
+
+  }
+
+  async getPaginatedUsers (page: number, limit: number): Promise<[Users[], number]> { // Method to fetch paginated users.
+
+    return this.usersRepository.findAndCount ({ // Use TypeORM's findAndCount for pagination.
+
+      skip: (page - 1) * limit, // Calculate the number of records to skip.
+      take: limit, // Limit the number of records to fetch.
+
+    });
+
+  }
+
+  async getUserWithOrders (userId: string): Promise<any> { // Method to fetch a user and their related orders.
+
+    const user = await this.usersRepository.findOne ({ // Find a user by ID.
+
+      where: { id: userId }, // Search condition: user ID.
+      relations: ["orders"], // Include related orders in the query.
+
+    });
+
+    if (!user) { // If user is not found.
+
+      throw new Error ("User not found."); // Throw an error.
+
+    }
+
+    const filteredUser = { // Build a filtered response object.
+
+      id: user.id, // Include user ID.
+      name: user.name, // Include user name.
+      email: user.email, // Include user email.
+
+      orders: user.orders.map ((order) => ({ // Map over user orders.
+
+        id: order.id, // Include order ID.
+        date: order.date, // Include order date.
+
+      })),
+
+    };
+
+    return filteredUser; // Return the filtered user object.
+  }
+
+  async logUser (email: string): Promise<Users | null> { // Method to log in a user by email.
+
+    return await this.usersRepository.findOne ({ // Find a user by email.
+
+      where: { email }, // Search condition: user email.      
+      select: ['id', 'email', 'password', 'roles'], // Select specific fields for security.
+
+    });
+
+  }
+  
+}
+
     
 
 

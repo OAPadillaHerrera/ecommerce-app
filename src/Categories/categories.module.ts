@@ -1,26 +1,29 @@
 
 
-/**
- * This file defines the `CategoriesModule`, which is responsible for 
- * managing operations related to categories within the application. 
- * It integrates database interactions, business logic, and API endpoints 
- * for handling category-related functionality.
+/** 
+ 
+ * This file defines the `CategoriesModule`, a NestJS module responsible 
+ * for managing all operations related to categories. It integrates database 
+ * interactions, business logic, and API endpoints while ensuring modularity 
+ * and reusability across the application.
+ 
  */
 
-import { Module } from '@nestjs/common'; // Import the decorator for defining a NestJS module.
-import { TypeOrmModule } from '@nestjs/typeorm'; // Import TypeORM integration for database interaction.
-import { Categories } from './categories.entity'; // Import the entity representing the 'Categories' table.
-import { CategoriesService } from './categories.service'; // Import the service for handling business logic related to categories.
-import { CategoriesController } from './categories.controller'; // Import the controller for managing HTTP requests for categories.
-import { CategoriesRepository } from './categories.repository'; // Import the repository for abstracting database operations.
+import { Module } from '@nestjs/common'; // Importing NestJS module decorator.
+import { TypeOrmModule } from '@nestjs/typeorm'; // Importing TypeORM integration for database handling.
+import { Categories } from './categories.entity'; // The entity representing the 'Categories' table in the database.
+import { CategoriesService } from './categories.service'; // The service containing business logic for categories.
+import { CategoriesController } from './categories.controller'; // The controller managing HTTP requests for category operations.
+import { CategoriesRepository } from './categories.repository'; // The repository that abstracts database operations for categories.
 
 @Module ({
 
-  imports: [TypeOrmModule.forFeature ([Categories])], // Import the TypeORM module to connect the Categories entity to the database.
-  providers: [CategoriesService, CategoriesRepository], // Register the service and repository as providers for dependency injection.
-  controllers: [CategoriesController], // Register the controller to handle HTTP requests related to categories.
-  exports: [CategoriesService], // Export the CategoriesService to make it available for other modules.
+  imports: [TypeOrmModule.forFeature ([Categories])], // Connects the `Categories` entity to the database using TypeORM.
+  providers: [CategoriesService, CategoriesRepository], // Registers the service and repository for dependency injection.
+  controllers: [CategoriesController], // Registers the controller for handling HTTP requests related to categories.
+  exports: [CategoriesService], // Exports the `CategoriesService` to be used in other modules.
 
 })
 
-export class CategoriesModule {}
+export class CategoriesModule {} // The main module encapsulating all category-related functionalities.
+

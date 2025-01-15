@@ -1,112 +1,109 @@
 
 
-import { Injectable} from "@nestjs/common";
-import { UsersRepository } from "./users.repository";
-import { CreateUserDto } from "./dtos/CreateUserDto";
-import * as bcrypt from 'bcrypt';
+/* 
+This file defines the `UsersService` class, which manages user-related operations in a NestJS application. 
+It interacts with the `UsersRepository` to handle database operations and performs additional logic such as hashing passwords.
+*/
+
+import { Injectable } from "@nestjs/common"; // Import Injectable decorator from NestJS
+import { UsersRepository } from "./users.repository"; // Import UsersRepository for database interactions
+import { CreateUserDto } from "./dtos/CreateUserDto"; // Import CreateUserDto for data transfer object validation
+import * as bcrypt from 'bcrypt'; // Import bcrypt for password hashing
 import { Users } from "./users.entity";
 
-
-
-@Injectable ({})
+@Injectable ({}) // Mark this class as a service in the NestJS dependency injection system.
 
 export class UsersService {
 
-    constructor (
-      private usersRepository: UsersRepository,
-      
-    ) {}
+  constructor (
 
-    /*getUsers() {
-    return this.usersRepository.getUsers();
-  }*/
- 
-    async getUsers() {
-      const users = await this.usersRepository.getUsers();
-    
-      // Excluir el campo password de cada usuario
-      return users.map(({ password, isAdmin, ...userWithoutPassword }) => userWithoutPassword);
+    private usersRepository: UsersRepository, // Inject the UsersRepository instance.
+
+  ) {}
+
+    async getUsers () { // Method to retrieve all users.
+
+      const users = await this.usersRepository.getUsers (); // Fetch users from repository.
+      return users.map (({ password, isAdmin, ...userWithoutPassword }) => userWithoutPassword); // Exclude sensitive fields like 'password'.
+
     }
 
-    async getUserById(id: string) {
-      const user = await this.usersRepository.getById(id);
-    
-      // Excluir el campo password
-      const { password, isAdmin, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+    async getUserById (id: string) { // Method to retrieve a user by ID.
+
+      const user = await this.usersRepository.getById (id); // Fetch user by ID from repository.
+      const { password, isAdmin, ...userWithoutPassword } = user; // Exclude sensitive fields like 'password'.
+      return userWithoutPassword; // Return user object without the password field.
+
     }
 
-    async createUser(user: CreateUserDto): Promise</*Omit<Users, 'password'>*/{id: string, password: string}> {
-      const { password, ...userData } = user;
-  
-      // Hashear la contraseña
-      const hashedPassword = await bcrypt.hash(password, 10);
-      console.log (hashedPassword);
-        
-      // Pasar los datos al repositorio para crear el usuario
-      const createdUser = await this.usersRepository.createUser({
-        ...userData,
-        password: hashedPassword, // Guardar la contraseña hasheada
-      });
+    async createUser (user: CreateUserDto): Promise </*{ id: string, password: string }*/Users> { // Method to create a new user.
 
-      // Excluir la contraseña antes de retornar el usuario
-      /*const { password: _, ...userWithoutPassword } = createdUser;*/
-  
-      return /*userWithoutPassword*/{ id: createdUser.id,  password: createdUser.password};
+      const { password, ...userData } = user; // Destructure user data and password.
+      const hashedPassword = await bcrypt.hash (password, 10); // Hash the password before storing it.
+      const createdUser = await this.usersRepository.createUser ({ ...userData, password: hashedPassword }); // Create user with hashed password.
+
+      const { password: _, name: __, email: ___, isAdmin: ____, phone: _____, country: ______, address: _______, city: ________,  roles: _________, ...userWithoutSensitiveFields } = createdUser
+      /*return { id: userWithoutPassword.id, password: createdUser.password }; // Return the created user's ID and password.*/
+      return userWithoutSensitiveFields as Users;
+
     }
-  
-  
-  
-    async updateUser(id: string, updateData: Partial<CreateUserDto>): Promise</*Omit<Users, 'password'*/{ id: string }> {
-      // Invoca al repositorio y devuelve directamente el resultado
-      const updateUser/*AGREGADO*/= /*return*/ this.usersRepository.updateUser(id, updateData);
 
-      if (!updateUser) {
+    async updateUser (id: string, updateData: Partial<CreateUserDto>): Promise<{ id: string }> { // Method to update a user's data.
 
-        throw new Error (`User with id ${id} not found`);
+      const updateUser = this.usersRepository.updateUser (id, updateData); // Call repository to update user.
+
+      if (!updateUser) { // Check if the user exists.
+
+        throw new Error (`User with id ${id} not found`); // Throw error if the user is not found.
+
       }
 
-      return { id:(await updateUser).id };
-  }
-         
-  
-  async deleteUser(id: string): Promise</*void*/{ id: string }> {
-    const deletedUser/*AGREGADO*/ = await this.usersRepository.deleteUser(id);
+      return { id: (await updateUser).id }; // Return the updated user's ID.
 
-    if (!deletedUser) {
-
-      throw new Error (`User with id ${id} not found`);
     }
 
-    return { id };
+    async deleteUser (id: string): Promise<{ id: string }> { // Method to delete a user by ID.
 
+        const deletedUser = await this.usersRepository.deleteUser (id); // Call repository to delete user.
 
-  }
+        if (!deletedUser) { // Check if the user exists.
 
-  
+          throw new Error (`User with id ${id} not found`); // Throw error if the user is not found.
 
-    async getPaginatedUsers(page: number, limit: number, includeisAdmin?: boolean) {
-      // Obtener usuarios paginados
-      const [users, totalUsers] = await this.usersRepository.getPaginatedUsers(page, limit);
-    
-      // Excluir el campo 'password' de cada usuario
-      const usersWithoutPassword = users.map(user => {
-        const { password, ...userWithoutPassword } = user; // Desestructurar y excluir 'password'
-        return userWithoutPassword; // Devolver el objeto sin el campo 'password'
-      });
-    
-      return {
-        users: usersWithoutPassword, // Usar la lista de usuarios sin el campo 'password'
-        totalUsers,
-        totalPages: Math.ceil(totalUsers / limit),
-        currentPage: page,
-      };
+        }
+
+        return { id }; // Return the ID of the deleted user.
+
     }
-    
-        
-  async getUserWithOrders(userId: string): Promise<any> {
-    return this.usersRepository.getUserWithOrders(userId);
-  }
+
+    async getPaginatedUsers (page: number, limit: number, includeisAdmin?: boolean) { // Method to retrieve paginated users.
+
+        const [users, totalUsers] = await this.usersRepository.getPaginatedUsers (page, limit); // Fetch paginated users.
+
+        const usersWithoutPassword = users.map (user => { // Map over users to exclude sensitive fields.
+
+            const { password, ...userWithoutPassword } = user; // Exclude 'password' field.
+            return userWithoutPassword; // Return user object without the password field.
+
+        });
+
+        return {
+
+            users: usersWithoutPassword, // List of users without passwords
+            totalUsers, // Total number of users
+            totalPages: Math.ceil (totalUsers / limit), // Calculate total pages
+            currentPage: page, // Current page.
+
+        };
+
+    }
+
+    async getUserWithOrders (userId: string): Promise<any> { // Method to retrieve a user and their associated orders.
+
+      return this.usersRepository.getUserWithOrders (userId); // Fetch user and orders from repository.
+
+    }
+
 }
 
 

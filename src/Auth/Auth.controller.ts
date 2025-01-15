@@ -1,103 +1,60 @@
 
 
 /**
- * This file defines the `AuthController` class, which handles authentication-related 
- * routes in the application.
- * 
- * The `AuthController` provides endpoints for user registration (signup) and 
- * login (signin). It interacts with the `AuthService` to handle the core business logic.
+ 
+ * This file defines the `AuthController` class, which handles authentication-related routes.
+ * The `AuthController` provides endpoints for user registration (signup) and login (signin).
+ * It interacts with the `AuthService` to manage authentication operations and generate JWT tokens.
+
  */
 
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginUserDto } from './dtos/LoginUserDto'; // Data Transfer Object for login.
+import { Body, Controller, Post } from '@nestjs/common';
+import { AuthService } from './auth.service'; // Service for authentication logic.
+import { LoginUserDto } from './dtos/LoginUserDto'; // DTO for user login.
 import { CreateUserDto } from 'src/Users/dtos/CreateUserDto'; // DTO for user registration.
 
-@Controller ('auth')
+@Controller ('auth') // Controller for authentication routes.
 
 export class AuthController {
 
-    /**
-     * Initializes the `AuthController` with an instance of the `AuthService`.
-     * 
-     * @param authService - The service responsible for authentication operations.
-     */
+  constructor (private readonly authService: AuthService) {} // Injects AuthService.
 
-    constructor (private readonly authService: AuthService) {}
+  @Post ('/signup') // Endpoint: POST /auth/signup.
 
-    /**
-     * Handles `GET /auth` requests.
-     * 
-     * @returns A message or object provided by the `AuthService` for basic auth route handling.
-     */
+  async signUp (@Body () createUserDto: CreateUserDto) {
 
-    @Get ()
+    const { password, confirmPassword } = createUserDto;
 
-    getAuth () {
+    if (password !== confirmPassword) { // Validates password confirmation.
 
-      return this.authService.getAuth ();
+      throw new Error ('Passwords are not the same.');
 
     }
 
-    /**
-     * Handles `POST /auth/signup` requests for user registration.
-     * 
-     * Validates that the passwords match and delegates user creation to the `AuthService`.
-     * 
-     * @param createUserDto - The data transfer object containing user registration details.
-     * @returns A confirmation message and the registered user object.
-     */
+    const user = await this.authService.signUp (createUserDto); // Registers the user.
 
-    @Post ('/signup')
+    return {
 
-    async signUp (@Body () createUserDto: CreateUserDto) {
+      message: 'User registered successfully.',
+      user,
 
-      const { password, confirmPassword } = createUserDto;
+    };
+  }
 
-      // Ensure that both passwords match.
-      if (password !== confirmPassword) {
+  @Post('/signin') // Endpoint: POST /auth/signin.
 
-        throw new Error ('Passwords are not the same.');
+  async logUser (@Body () loginUserDto: LoginUserDto) {
 
-      }
+    const token = await this.authService.logUser (loginUserDto); // Authenticates user and generates a token.
 
-      // Call the service to register the user.
-      const user = await this.authService.signUp (createUserDto);
+    return {
 
-        return {
+      message: 'Successful sesion start.', // Standard response for login.
+      token,
 
-          message: 'User registered successfully.',
-          user,
+    };
 
-        };
-
-    }
-
-    /**
-     * Handles `POST /auth/signin` requests for user authentication.
-     * 
-     * Delegates the login process to the `AuthService` and returns a JWT token.
-     * 
-     * @param loginUserDto - The data transfer object containing login credentials.
-     * @returns A confirmation message and the generated authentication token.
-     */
-
-    @Post ('/signin')
-
-    async logUser(@Body () loginUserDto: LoginUserDto) {
-
-      // Call the service to authenticate the user and generate a token.
-      const token = await this.authService.logUser (loginUserDto);
-
-        // Return a standard response with the token.
-        return {
-
-            message: 'Inicio de sesión exitoso',
-            token,
-
-        };
-
-    }
-    
+  }
+  
 }
 

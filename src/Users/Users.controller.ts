@@ -1,253 +1,131 @@
 
 
 /**
- * This file defines the `UsersController` class, which handles all user-related 
- * operations and routes in the application.
- * 
- * It provides endpoints for CRUD operations, user retrieval, pagination, and 
- * additional functionality such as associating users with their orders.
+ 
+ * This file defines the `UsersController` class, which handles user-related operations and routes.
+ * It provides endpoints for CRUD operations, user retrieval with pagination, and managing user-related data, 
+ * such as associating users with their orders. Authentication, validation, and role-based access control 
+ * are implemented for secure handling of requests.
+ 
  */
 
-import {
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Query, ValidationPipe, UsePipes, Req } from '@nestjs/common';
+import { UsersService } from './users.service'; // Service for user-related business logic.
+import { AuthGuard } from '../Auth/AuthGuard'; // Guard for authentication.
+import { ValidateGuard } from 'src/guards/validate.guard'; // Guard for additional validation.
+import { CreateUserDto } from './dtos/CreateUserDto'; // DTO for user creation and Login.
+import { UUIDParamDto } from '../dtos/UUIDParamDto'; // DTO for validating UUID parameters.
+import { Roles } from 'src/decorators/roles.decorators'; // Decorator for role-based access.
+import { Role } from 'src/roles.enum'; // Enum for role definitions.
+import { RolesGuard } from 'src/guards/roles.guard'; // Guard for role-based access control.
+import { ApiBearerAuth } from '@nestjs/swagger'; // Swagger decorator for API authentication.
 
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Param,
-  Body,
-  UseGuards,
-  Query,
-  ValidationPipe,
-  UsePipes,
-  Req,
-
-} from '@nestjs/common';
-
-import { UsersService } from './users.service';
-import { AuthGuard } from '../Auth/AuthGuard';
-import { ValidateGuard } from 'src/guards/validate.guard';
-import { CreateUserDto } from './dtos/CreateUserDto';
-import { UUIDParamDto } from '../dtos/UUIDParamDto';
-import { Roles } from 'src/decorators/roles.decorators';
-import { Role } from 'src/roles.enum';
-import { RolesGuard } from 'src/guards/roles.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
-
-@Controller ('users')
+@Controller ('users') // Controller for user routes.
 
 export class UsersController {
-
-  /**
-   * Initializes the `UsersController` with an instance of `UsersService`.
-   * 
-   * @param usersService - Service for managing user-related business logic.
-   */
-
-  constructor (private readonly usersService: UsersService) {}
-
-  /**
-   * Handles `GET /users/all` requests.
-   * 
-   * Retrieves all users without pagination. Requires authentication.
-   * 
-   * @returns A list of all users.
-   */
+  
+  constructor (private readonly usersService: UsersService) {} // Injects UsersService.
 
   @ApiBearerAuth ()
-  @Get ('/all')
-  @UseGuards (AuthGuard)
+  @Get ('/all') // Endpoint: GET /users/all.
+  @UseGuards (AuthGuard) // Requires authentication.
 
-  getUsers () {
+  async getUsers () {
 
-    return this.usersService.getUsers();
+    return this.usersService.getUsers (); // Fetches all users.
 
   }
 
-  /**
-   * Handles `GET /users` requests with pagination and optional filtering.
-   * 
-   * Requires the `Admin` role and authentication. Validates pagination parameters.
-   * 
-   * @param page - The page number for pagination.
-   * @param limit - The maximum number of users per page.
-   * @param includeisAdmin - Whether to include admin users in the results.
-   * @returns A paginated list of users.
-   */
-
   @ApiBearerAuth ()
-  @Get ()
-  @Roles (Role.Admin)
-  @UseGuards (AuthGuard, RolesGuard)
+  @Get () // Endpoint: GET /users with pagination.
+  @Roles (Role.Admin) // Requires Admin role.
+  @UseGuards (AuthGuard, RolesGuard) // Requires authentication and role validation.
 
   async getPaginatedUsers (
 
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-    @Query('includeisAdmin') includeisAdmin: string,
+    @Query ('page') page: string, // Page number query.
+    @Query ('limit') limit: string, // Items per page query.
+    @Query ('includeisAdmin') includeisAdmin: string, // Filter for admin users.
 
   ) {
 
-    const pageNumber = parseInt (page, 10) || 1;
-    const limitNumber = parseInt (limit, 10) || 5;
+    const pageNumber = parseInt (page, 10) || 1; // Default page number.
+    const limitNumber = parseInt(limit, 10) || 5; // Default limit.
+    if (isNaN (pageNumber) || pageNumber < 1) throw new Error ('Invalid page number');
+    if (isNaN (limitNumber) || limitNumber < 1) throw new Error ('Invalid limit number');
 
-    if (isNaN (pageNumber) || pageNumber < 1) {
+    const isAdminFlag = includeisAdmin === 'true'; // Converts string to boolean.
 
-      throw new Error('Invalid page number');
-
-    }
-
-    if (isNaN (limitNumber) || limitNumber < 1) {
-
-      throw new Error ('Invalid limit number');
-
-    }
-
-    let isAdminFlag = false;
-
-    if (includeisAdmin === 't') {
-
-      isAdminFlag = true;
-
-    } else if (includeisAdmin !== undefined && includeisAdmin !== 'false') {
+    if (includeisAdmin && includeisAdmin !== 'true' && includeisAdmin !== 'false') {
 
       throw new Error('Invalid value for includeisAdmin, expected "true" or "false"');
 
     }
 
-    return this.usersService.getPaginatedUsers(pageNumber, limitNumber, isAdminFlag);
+    return this.usersService.getPaginatedUsers (pageNumber, limitNumber, isAdminFlag);
 
   }
 
-  /**
-   * Handles `GET /users/admin` requests.
-   * 
-   * Retrieves a protected message. Requires the `Admin` role.
-   * 
-   * @returns A message indicating access to a protected route.
-   */
-
   @ApiBearerAuth ()
-  @Get ('admin')
-  @Roles (Role.Admin)
-  @UseGuards (AuthGuard, RolesGuard)
 
-  getAdmin () {
+  @Get (':id') // Endpoint: GET /users/:id.
+  @UseGuards (AuthGuard) // Requires authentication.
+  @UsePipes (new ValidationPipe()) // Validates incoming parameters.
 
-    return 'Protected route';
+  async getUserById (@Req() req: any, @Param() params: UUIDParamDto) {
+
+    const payloadUser = req.user; // Retrieves authenticated user payload.
+    const dbUser = await this.usersService.getUserById (params.id); // Fetches user by ID.
+    return { ...dbUser, exp: payloadUser.exp }; // Returns user data with token expiration.
 
   }
 
-  /**
-   * Handles `GET /users/:id` requests.
-   * 
-   * Retrieves a specific user by ID. Validates the ID and includes token expiration details.
-   * 
-   * @param req - The incoming request object containing the user's token.
-   * @param params - The parameters containing the user's ID.
-   * @returns The user object with additional information.
-   */
-
   @ApiBearerAuth ()
-  @Get (':id')
-  @UseGuards (AuthGuard)
-  @UsePipes (new ValidationPipe())
+  @Post ('/all') // Endpoint: POST /users/all.
+  @UseGuards (AuthGuard, ValidateGuard) // Requires authentication and validation.
 
-  async getUserById (@Req () req: any, @Param () params: UUIDParamDto) {
+  async createUser (@Body() createUserDto: CreateUserDto) {
 
-    const payloadUser = req.user;
-    const dbUser = await this.usersService.getUserById(params.id);
+    return this.usersService.createUser (createUserDto); // Creates a new user.
 
-    return {
-      ...dbUser,
-      exp: payloadUser.exp,
-    };
   }
 
-  /**
-   * Handles `POST /users/all` requests.
-   * 
-   * Creates a new user. Requires authentication and validation.
-   * 
-   * @param createUserDto - The DTO containing user creation details.
-   * @returns The created user object.
-   */
-  
   @ApiBearerAuth ()
-  @Post('/all')
-  @UseGuards(AuthGuard, ValidateGuard)
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
-  }
+  @Put (':id') // Endpoint: PUT /users/:id
+  @UseGuards (AuthGuard, ValidateGuard) // Requires authentication and validation.
+  @UsePipes (new ValidationPipe()) // Validates incoming parameters.
 
-  /**
-   * Handles `PUT /users/:id` requests.
-   * 
-   * Updates an existing user's details. Requires authentication and validation.
-   * 
-   * @param params - The parameters containing the user's ID.
-   * @param updateUserDto - The DTO containing the updated user details.
-   * @returns The updated user object.
-   */
-
-  @ApiBearerAuth ()
-  @Put (':id')
-  @UseGuards (AuthGuard, ValidateGuard)
-  @UsePipes (new ValidationPipe())
-
-  async updateUser (
-
-    @Param () params: UUIDParamDto,
-    @Body () updateUserDto: CreateUserDto,
+  async updateUser ( 
+    
+    @Param () params: UUIDParamDto, // User ID parameter.
+    @Body () updateUserDto: CreateUserDto, // Updated user details.
 
   ) {
 
-    return this.usersService.updateUser (params.id, updateUserDto);
+    return this.usersService.updateUser (params.id, updateUserDto); // Updates user by ID.
 
   }
-
-
-  /**
-   * Handles `DELETE /users/:id` requests.
-   * 
-   * Deletes a user by ID. Requires authentication and validation.
-   * 
-   * @param params - The parameters containing the user's ID.
-   * @returns A confirmation message or the deleted user's ID.
-   */
 
   @ApiBearerAuth ()
-  @Delete (':id')
-  @UseGuards (AuthGuard)
-  @UsePipes (new ValidationPipe())
+  @Delete (':id') // Endpoint: DELETE /users/:id.
+  @UseGuards (AuthGuard) // Requires authentication.
+  @UsePipes (new ValidationPipe()) // Validates incoming parameters.
 
-  deleteUser (@Param () params: UUIDParamDto) {
+  async deleteUser (@Param () params: UUIDParamDto) {
 
-    return this.usersService.deleteUser (params.id);
+    return this.usersService.deleteUser (params.id); // Deletes user by ID.
 
   }
 
-
-  /**
-   * Handles `GET /users/:id/orders` requests.
-   * 
-   * Retrieves a user along with their associated purchase orders. 
-   * 
-   * @param params - The parameters containing the user's ID.
-   * @returns The user object with their associated orders.
-   */
-
-  @Get (':id/orders')
-  @UsePipes (new ValidationPipe ())
+  @Get (':id/orders') // Endpoint: GET /users/:id/orders.
+  @UsePipes (new ValidationPipe()) // Validates incoming parameters.
 
   async getUserWithOrders (@Param () params: UUIDParamDto): Promise<any> {
 
-    return await this.usersService.getUserWithOrders(params.id);
+    return await this.usersService.getUserWithOrders (params.id); // Fetches user and their orders.
 
   }
-  
-}
 
+}
 
 

@@ -1,19 +1,15 @@
 
 
 /**
+ * 
  * This file defines the TypeORM configuration for database connectivity. 
  * It loads environment variables, sets up database connection options, 
  * and initializes the TypeORM data source for use in the application.
- */
+ 
+*/
 
 import { DataSource, DataSourceOptions } from 'typeorm'; // Import TypeORM's DataSource and configuration options.
 import { config as dotenvConfig } from 'dotenv'; // Import dotenv to load environment variables.
-import { Categories } from '../Categories/categories.entity'; // Import the Categories entity.
-import { OrderDetails } from '../OrderDetails/orderdetails.entity'; // Import the OrderDetails entity.
-import { Users } from '../Users/users.entity'; // Import the Users entity.
-import { Products } from '../Products/products.entity'; // Import the Products entity.
-import { Orders } from '../Orders/orders.entity'; // Import the Orders entity
-
 
 dotenvConfig ({ path: '.env.development' }); // Load environment variables from the '.env.development' file.
 

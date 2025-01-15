@@ -1,10 +1,12 @@
 
 
 /**
+
  * This file defines the `CloudinaryConfig`, which is responsible for 
  * configuring the Cloudinary SDK with credentials loaded from environment variables.
  * It provides a factory for injecting Cloudinary configuration into the application.
- */
+ 
+*/
 
 import { v2 } from "cloudinary"; // Import the Cloudinary SDK.
 import { config as dotenvConfig } from "dotenv"; // Import dotenv to load environment variables.

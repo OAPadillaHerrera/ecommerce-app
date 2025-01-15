@@ -1,118 +1,154 @@
 
 
-import { Injectable } from "@nestjs/common";
-import { Repository } from "typeorm";
-import { Products } from "./products.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Product } from "./product.interface";
-import { Categories } from "../Categories/categories.entity";
+/* 
 
-@Injectable()
+This file defines the `ProductsRepository` class, which manages interactions with the `Products` entity in a NestJS application. 
+It uses TypeORM to perform CRUD operations, handle relationships with categories, and support advanced features like pagination. 
+The repository ensures robust error handling and clean data management.
+
+*/
+
+import { Injectable } from "@nestjs/common"; // Import Injectable decorator from NestJS.
+import { Repository } from "typeorm"; // Import Repository to interact with the database.
+import { Products } from "./products.entity"; // Import Products entity for database operations.
+import { InjectRepository } from "@nestjs/typeorm" // / Import InjectRepository to inject a TypeORM repository.
+import { Categories } from "../Categories/categories.entity"; // Import Categoriejs/typeorm"; /
+import { createProductDto } from "./dtos/CreateProductDto";
+
+@Injectable () // Mark this class as injectable for dependency injection.
+
 export class ProductsRepository {
-  constructor(
-    @InjectRepository(Products)
-    private readonly productsRepository: Repository<Products>
+
+  constructor (
+
+    @InjectRepository (Products) // Inject the TypeORM repository for the Products entity.
+    private readonly productsRepository: Repository<Products>, // Define the repository as a private readonly property.
+
   ) {}
 
-  // Obtener todos los productos
-  async getProducts(): Promise<Products[]> {
-    return await this.productsRepository.find({ relations: ["categories"] });
+  async getProducts (): Promise<Products[]> { // Method to fetch all products.
+
+    return await this.productsRepository.find ({ relations: ["categories"] }); // Fetch products with related categories.
+
   }
 
-  // Obtener un producto por ID
-  async getById(id: string): Promise<Products | null> {
-    return await this.productsRepository.findOne({
-      where: { id },
-      relations: ["categories"],
+  async getById (id: string): Promise<Products | null> { // Method to fetch a product by ID.
+
+    return await this.productsRepository.findOne ({ // Find a product by ID.
+
+      where: { id }, // Search condition: product ID.
+      relations: ["categories"], // Include related categories in the query.
+
     });
+
   }
 
-  // Crear un nuevo producto
-  async createProduct(product: Omit<Product, "id">): Promise<{ id: string }> {
+  async createProduct (product: /*Omit<Product, "id">*/createProductDto): Promise<{ id: string }> { // Method to create a new product.
+
     try {
-      // Buscar la categoría en la base de datos por nombre
-      const category = await this.productsRepository.manager.findOne(Categories, {
-        where: { name: product.categories },
+
+      const category = await this.productsRepository.manager.findOne (Categories, { // Find the category by name.
+        where: { name: product.categories }, // Search condition: category name.
+
       });
 
-      if (!category) {
-        throw new Error(`Categoría no encontrada: ${product.categories}`);
+      if (!category) { // If the category is not found.
+
+        throw new Error (`Category not found: ${product.categories}`); // Throw an error.
+
       }
 
-      // Crear el producto, asignando la categoría
-      const newProduct = this.productsRepository.create({
-        ...product,
-        categories: category,
+      const newProduct = this.productsRepository.create ({ // Create a new product instance.
+
+        ...product, // Spread product properties.
+        categories: category, // Assign the category entity.
+
       });
 
-      // Guardar el producto en la base de datos
-      const result = await this.productsRepository.save(newProduct);
-      return { id: result.id };
-    } catch (error) {
-      console.error("Error al crear el producto:", error.message);
-      throw error;
-    }
-  }
+      const result = await this.productsRepository.save (newProduct); // Save the new product to the database.      
+      return { id: result.id }; // Return the ID of the newly created product.
 
-  // Actualizar un producto existente
-  async updateProduct(id: string, updateData: Partial<Product>): Promise<{ id: string }> {
-    const product = await this.productsRepository.findOne({ where: { id } });
+    } catch (error) { // Catch any errors during the process.
+   
+      throw error; // Re-throw the error.
 
-    if (!product) {
-      throw new Error("Product not found");
     }
 
-    // Actualizar el producto con los nuevos datos
-    Object.assign(product, updateData);
-
-    // Guardar los cambios en la base de datos
-    const updatedProduct = await this.productsRepository.save(product);
-    return { id: updatedProduct.id };
   }
 
-  // Eliminar un producto
-  async deleteProduct(id: string): Promise<{ id: string }> {
-    const product = await this.productsRepository.findOne({ where: { id } });
+  async updateProduct (id: string, updateData: Partial</*Product*/createProductDto>): Promise<{ id: string }> { // Method to update a product.
+    const product = await this.productsRepository.findOne ({ where: { id } }); // Find the product by ID.
 
-    if (!product) {
-      throw new Error("Product not found");
+    if (!product) { // If the product is not found.
+
+      throw new Error("Product not found"); // Throw an error.
+
     }
 
-    await this.productsRepository.remove(product);
-    return { id };
+    Object.assign (product, updateData); // Update product fields with new data.
+    const updatedProduct = await this.productsRepository.save (product); // Save changes to the database.
+    return { id: updatedProduct.id }; // Return the ID of the updated product.
+
   }
 
-  // Obtener productos paginados
-  async getPaginatedProducts(
-    page: number = 1,
-    limit: number = 5
+  async deleteProduct (id: string): Promise<{ id: string }> { // Method to delete a product.
+
+    const product = await this.productsRepository.findOne ({ where: { id } }); // Find the product by ID.
+
+    if (!product) { // If the product is not found.
+
+      throw new Error ("Product not found"); // Throw an error.
+
+    }
+
+    await this.productsRepository.remove (product); // Remove the product from the database.
+    return { id }; // Return the ID of the deleted product.
+
+  }
+
+  async getPaginatedProducts ( // Method to fetch paginated products.
+
+    page: number = 1, // Default to page 1.
+    limit: number = 5, // Default to 5 items per page.
+
   ): Promise<{
+
     products: Products[];
     totalProducts: number;
     totalPages: number;
     currentPage: number;
+
   }> {
-    const [products, totalProducts] = await this.productsRepository.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
-      relations: ["categories"],
+
+    const [products, totalProducts] = await this.productsRepository.findAndCount ({ // Fetch products and total count.
+
+      skip: (page - 1) * limit, // Calculate records to skip.
+      take: limit, // Limit the number of records fetched.
+      relations: ["categories"], // Include related categories.
+
     });
 
-    const totalPages = Math.ceil(totalProducts / limit);
+    const totalPages = Math.ceil (totalProducts / limit); // Calculate the total number of pages.
 
     return {
-      products,
-      totalProducts,
-      totalPages,
-      currentPage: page,
+
+      products, // List of products.
+      totalProducts, // Total number of products.
+      totalPages, // Total pages.
+      currentPage: page, // Current page.
+
     };
+
   }
 
-  // Buscar un producto por nombre
-  async findByName(name: string): Promise<Products | null> {
-    return await this.productsRepository.findOne({
-      where: { name },
-      relations: ["categories"],
+  async findByName (name: string): Promise<Products | null> { // Method to find a product by name.
+
+    return await this.productsRepository.findOne ({ // Find a product by name.
+      where: { name }, // Search condition: product name.
+      relations: ["categories"], // Include related categories.
+
     });
+
   }
+  
 }
