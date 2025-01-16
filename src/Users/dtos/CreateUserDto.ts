@@ -78,7 +78,7 @@ export class CreateUserDto {
   }) // Swagger metadata.
   confirmPassword?: string; // Confirmation for user's password.
 
-  @IsOptional () // The `isAdmin` field is optional for user role designation.
+  /*@IsOptional () // The `isAdmin` field is optional for user role designation.
   @Column ({ default: false }) // Sets a default value of `false` in the database.
 
   @ApiProperty ({ 
@@ -87,7 +87,7 @@ export class CreateUserDto {
     example: false 
 
   }) // Swagger metadata.
-  isAdmin: string; // Field to indicate if the user is an admin.
+  isAdmin: string; // Field to indicate if the user is an admin.*/
 
   @IsOptional () // The `address` field is optional.
   @IsNotEmpty ({ message: 'Address is required.' }) // If provided, it cannot be empty.
@@ -140,12 +140,12 @@ export class CreateUserDto {
   }) // Swagger metadata.
   city?: string; // User's city.
 
-  @ApiProperty ({ 
+  /*@ApiProperty ({ 
     
     description: 'User roles assigned.', 
     example: ['user', 'admin'] 
   
   }) // Swagger metadata for roles.
-  roles?: string []; // User's roles, optional.
+  roles?: string []; // User's roles, optional.*/
   
 }

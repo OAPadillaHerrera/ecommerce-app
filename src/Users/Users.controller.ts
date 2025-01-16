@@ -28,7 +28,8 @@ export class UsersController {
 
   @ApiBearerAuth ()
   @Get ('/all') // Endpoint: GET /users/all.
-  @UseGuards (AuthGuard) // Requires authentication.
+  @UseGuards (AuthGuard, RolesGuard) // Requires authentication.
+  @Roles(Role.Admin) // // Requires Admin role.
 
   async getUsers () {
 
@@ -45,7 +46,7 @@ export class UsersController {
 
     @Query ('page') page: string, // Page number query.
     @Query ('limit') limit: string, // Items per page query.
-    @Query ('includeisAdmin') includeisAdmin: string, // Filter for admin users.
+    /*@Query ('includeisAdmin') includeisAdmin: string, // Filter for admin users.*/
 
   ) {
 
@@ -54,15 +55,15 @@ export class UsersController {
     if (isNaN (pageNumber) || pageNumber < 1) throw new Error ('Invalid page number');
     if (isNaN (limitNumber) || limitNumber < 1) throw new Error ('Invalid limit number');
 
-    const isAdminFlag = includeisAdmin === 'true'; // Converts string to boolean.
+    /*const isAdminFlag = includeisAdmin === 'true'; // Converts string to boolean.
 
     if (includeisAdmin && includeisAdmin !== 'true' && includeisAdmin !== 'false') {
 
-      throw new Error('Invalid value for includeisAdmin, expected "true" or "false"');
+      throw new Error ('Invalid value for includeisAdmin, expected "true" or "false"');
 
-    }
+    }*/
 
-    return this.usersService.getPaginatedUsers (pageNumber, limitNumber, isAdminFlag);
+    return this.usersService.getPaginatedUsers (pageNumber, limitNumber/*, isAdminFlag*/);
 
   }
 
@@ -82,7 +83,7 @@ export class UsersController {
 
   @ApiBearerAuth ()
   @Post ('/all') // Endpoint: POST /users/all.
-  @UseGuards (AuthGuard, ValidateGuard) // Requires authentication and validation.
+  @UseGuards (/*AuthGuard,*/ ValidateGuard) // Requires authentication and validation.
 
   async createUser (@Body() createUserDto: CreateUserDto) {
 
@@ -118,6 +119,7 @@ export class UsersController {
   }
 
   @Get (':id/orders') // Endpoint: GET /users/:id/orders.
+  /*@UseGuards (AuthGuard) // Requires authentication.*/
   @UsePipes (new ValidationPipe()) // Validates incoming parameters.
 
   async getUserWithOrders (@Param () params: UUIDParamDto): Promise<any> {

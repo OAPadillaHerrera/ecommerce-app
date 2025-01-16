@@ -44,7 +44,7 @@ export class ProductsController {
 
   @ApiBearerAuth ()
   @Get () // Endpoint: GET /products with pagination.
-  @UseGuards (AuthGuard) // Requires authentication.
+  /*@UseGuards (AuthGuard) // Requires authentication.*/
 
   async getPaginatedProducts (
 
@@ -119,6 +119,8 @@ export class ProductsController {
   }
 
   @Post ('/seeder') // Endpoint: POST /products/seeder.
+  @UseGuards (AuthGuard) // Requires authentication.
+
 
   async seedProducts () {
 

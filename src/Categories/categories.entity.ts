@@ -22,6 +22,7 @@ export class Categories {
 
     @PrimaryGeneratedColumn ("uuid") // Configures this column as a primary key and generates UUIDs.
     id: string = uuid (); // Assigns a default UUID value when a new category is created.
+    
     @Column ({ length: 50, nullable: false }) // Configures this column to store strings with a max length of 50 and makes it non-nullable.
     name: string; // Represents the name of the category.
 

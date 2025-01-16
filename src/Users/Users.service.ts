@@ -31,19 +31,18 @@ export class UsersService {
     async getUserById (id: string) { // Method to retrieve a user by ID.
 
       const user = await this.usersRepository.getById (id); // Fetch user by ID from repository.
-      const { password, isAdmin, ...userWithoutPassword } = user; // Exclude sensitive fields like 'password'.
+      const { password, isAdmin, ...userWithoutPassword } = user; // Exclude sensitive fields like 'password' and 'isAdmin'.
       return userWithoutPassword; // Return user object without the password field.
 
     }
 
-    async createUser (user: CreateUserDto): Promise </*{ id: string, password: string }*/Users> { // Method to create a new user.
+    async createUser (user: CreateUserDto): Promise </*{ id: string/*, /*password: string }*/Users> { // Method to create a new user.
 
       const { password, ...userData } = user; // Destructure user data and password.
       const hashedPassword = await bcrypt.hash (password, 10); // Hash the password before storing it.
       const createdUser = await this.usersRepository.createUser ({ ...userData, password: hashedPassword }); // Create user with hashed password.
 
       const { password: _, name: __, email: ___, isAdmin: ____, phone: _____, country: ______, address: _______, city: ________,  roles: _________, ...userWithoutSensitiveFields } = createdUser
-      /*return { id: userWithoutPassword.id, password: createdUser.password }; // Return the created user's ID and password.*/
       return userWithoutSensitiveFields as Users;
 
     }
@@ -76,7 +75,7 @@ export class UsersService {
 
     }
 
-    async getPaginatedUsers (page: number, limit: number, includeisAdmin?: boolean) { // Method to retrieve paginated users.
+    async getPaginatedUsers (page: number, limit: number, /*includeisAdmin?: boolean*/) { // Method to retrieve paginated users.
 
         const [users, totalUsers] = await this.usersRepository.getPaginatedUsers (page, limit); // Fetch paginated users.
 

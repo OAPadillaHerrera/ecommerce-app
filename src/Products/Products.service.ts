@@ -39,7 +39,7 @@ export class ProductsService {
 
   }
 
-  async createProduct (product: /*Omit<Product, "id">*/createProductDto): Promise<{ id: string }> { // Method to create a new product.
+  async createProduct (product: createProductDto): Promise<{ id: string }> { // Method to create a new product.
 
     const categoryExists = await this.categoriesService.findByName (product.categories); // Check if the category exists.
 

@@ -11,7 +11,7 @@
  * It uses the `Reflector` service to retrieve metadata and validates the user's 
  * roles accordingly.
  
- */
+*/
 
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common"; // CanActivate: Interface for guards, ExecutionContext: Provides context for the current request, ForbiddenException: Used to throw 403 errors, Injectable: Marks the class as injectable for dependency injection.
 import { Reflector } from "@nestjs/core"; // Reflector: Utility to access metadata defined with decorators, useful in custom guards and interceptors.
