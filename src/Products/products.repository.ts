@@ -8,16 +8,18 @@ The repository ensures robust error handling and clean data management.
 
 */
 
-import { Injectable } from "@nestjs/common"; // Import Injectable decorator from NestJS.
+import { Injectable, NotFoundException } from "@nestjs/common"; // Import Injectable decorator from NestJS.
 import { Repository } from "typeorm"; // Import Repository to interact with the database.
 import { Products } from "./products.entity"; // Import Products entity for database operations.
 import { InjectRepository } from "@nestjs/typeorm" // / Import InjectRepository to inject a TypeORM repository.
 import { Categories } from "../Categories/categories.entity"; // Import Categoriejs/typeorm"; /
 import { createProductDto } from "./dtos/CreateProductDto";
+import { updateProductDto } from "./dtos/UpdateProductDto";
 
 @Injectable () // Mark this class as injectable for dependency injection.
 
 export class ProductsRepository {
+  
 
   constructor (
 
@@ -76,12 +78,12 @@ export class ProductsRepository {
 
   }
 
-  async updateProduct (id: string, updateData: Partial</*Product*/createProductDto>): Promise<{ id: string }> { // Method to update a product.
+  async updateProduct (id: string, updateData: Partial</*Product*/updateProductDto>): Promise<{ id: string }> { // Method to update a product.
     const product = await this.productsRepository.findOne ({ where: { id } }); // Find the product by ID.
 
     if (!product) { // If the product is not found.
 
-      throw new Error("Product not found"); // Throw an error.
+      throw new Error ("Product not found"); // Throw an error.
 
     }
 
@@ -90,6 +92,10 @@ export class ProductsRepository {
     return { id: updatedProduct.id }; // Return the ID of the updated product.
 
   }
+
+ 
+
+
 
   async deleteProduct (id: string): Promise<{ id: string }> { // Method to delete a product.
 

@@ -11,9 +11,9 @@ It interacts with `ProductsRepository` for database operations, `CategoriesServi
 import { Injectable, NotFoundException } from "@nestjs/common"; // Import Injectable and NotFoundException from NestJS.
 import { ProductsRepository } from "./products.repository"; // Import ProductsRepository for product data management.
 import { CategoriesService } from "../Categories/categories.service"; // Import CategoriesService for category operations.
-import { Product } from "./product.interface"; // Import Product interface for type safety.
 import { CloudinaryService } from "../cloudinary/cloudinary.service"; // Import CloudinaryService for image uploads.
 import { createProductDto } from "./dtos/CreateProductDto"; // Import createProductDto for product creation validation.
+import { updateProductDto } from "./dtos/UpdateProductDto";
 
 @Injectable () // Mark this class as injectable for dependency injection.
 
@@ -58,7 +58,7 @@ export class ProductsService {
 
   }
 
-  async updateProduct (id: string, updateData: createProductDto) { // Method to update a product.
+  async updateProduct (id: string, updateData: updateProductDto) { // Method to update a product.
 
     const product = await this.productsRepository.updateProduct (id, updateData); // Attempt to update the product.
 
@@ -70,8 +70,8 @@ export class ProductsService {
 
     return this.productsRepository.updateProduct (id, updateData); // Return the updated product.
 
-  }
-
+  }   
+    
   deleteProduct (id: string) { // Method to delete a product.
 
     return this.productsRepository.deleteProduct (id); // Delete the product by ID.

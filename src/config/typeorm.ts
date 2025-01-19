@@ -39,3 +39,6 @@ export const typeOrmConfig = () => ({
   typeorm: typeOrmConfigOptions,
   
 });
+
+/*npm run typeorm:generate -- src/migrations/RemoveRolesColumnFromUsers -d dist/config/typeorm.js*/
+

@@ -9,7 +9,7 @@
  
 */
 
-import { ApiProperty } from '@nestjs/swagger'; // Decorator for documenting API models and properties.
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger'; // Decorator for documenting API models and properties.
 import {
 
   IsOptional, // Marks a property as optional during validation.
@@ -19,12 +19,14 @@ import {
   Length, // Sets constraints on the minimum and maximum length of the property.
   Matches, // Validates the property against a specified regex pattern.
   IsNumberString,
-  IsArray, // Ensures the property contains only numeric characters.
+  IsArray,
+  IsBoolean,
+  IsEmpty, // Ensures the property contains only numeric characters.
  
 
 } from 'class-validator'; // Importing validation decorators from the `class-validator` library.
 
-export class CreateUserDto {
+export class CreateUserDtoAdmin {
 
   @IsOptional () // The `name` field is optional for certain requests, like updates.
   @IsNotEmpty ({ message: 'Name is required.' }) // If provided, it cannot be empty.
@@ -76,6 +78,17 @@ export class CreateUserDto {
 
   }) // Swagger metadata.
   confirmPassword?: string; // Confirmation for user's password.
+
+  @IsOptional()
+  @IsBoolean()
+  @IsEmpty ()
+  @ApiHideProperty (/*{ 
+    
+    description: 'Admimistrator.', 
+    example: 'true' 
+  
+  }*/) // Swagger metadata.
+  isAdmin?: boolean;
   
   @IsOptional () // The `address` field is optional.
   @IsNotEmpty ({ message: 'Address is required.' }) // If provided, it cannot be empty.
@@ -84,7 +97,7 @@ export class CreateUserDto {
 
   @ApiProperty ({ 
     
-    description: 'Address must be a string between 3 and 80 characters.', 
+    description: 'Address must be a string between 3 and 80 characters.',
     example: '100 Test St' 
   
   }) // Swagger metadata.
@@ -139,6 +152,6 @@ export class CreateUserDto {
   }) // Swagger metadata.
 
 
-  readonly roles: string[] = ['user'];  // Asignar 'user' por defecto si no se especifica un rol.*/ 
-    
+readonly roles: string [] = ['user'];  // Asignar 'user' por defecto si no se especifica un rol.*/  
+  
 }

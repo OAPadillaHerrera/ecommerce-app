@@ -48,7 +48,7 @@ export class AuthService {
 
     }
 
-    let roles = Array.isArray (user.roles) ? user.roles : []; // Ensure roles is an array.
+    /*let roles = Array.isArray (user.roles) ? user.roles : []; // Ensure roles is an array.
 
     if (typeof user.roles === 'string') { // If roles is a string.
 
@@ -81,7 +81,7 @@ export class AuthService {
 
       }
 
-    }
+    }*/
 
     let isAdmin: boolean; // Ensure isAdmin is a boolean.
 
@@ -98,7 +98,7 @@ export class AuthService {
     const payload = { // Create JWT payload.
       sub: user.id, // Include user ID as 'sub'.
       email: user.email, // Include user email.
-      roles: roles, // Include roles array.
+      /*roles: roles, // Include roles array.*/
       isAdmin: isAdmin, // Include isAdmin flag.
 
     };

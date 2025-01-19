@@ -13,6 +13,7 @@ import { CategoriesRepository } from "./categories.repository"; // Import Catego
 import * as fs from "fs/promises"; // Import fs/promises for file system operations.
 import * as path from "path"; // Import path for resolving file paths.
 import { Categories } from "./categories.entity"; // Import Categories entity for type safety.
+import { CreateCategoryDto } from "./dtos/CreateCategoryDto";
 
 @Injectable () // Mark this class as a service in the NestJS dependency injection system.
 
@@ -30,7 +31,7 @@ export class CategoriesService {
 
   }
 
-  async addCategories (category: { name: string }): Promise<string> { // Method to add a new category.
+  /*async addCategories (category: { name: string }): Promise<string> { // Method to add a new category.
 
     const existingCategories = await this.getCategories (); // Get all existing categories.
     const categoryExists = existingCategories.some ( // Check if the category already exists.
@@ -48,7 +49,26 @@ export class CategoriesService {
 
     return `Category "${category.name}" already exists.`; // Return message if category already exists.
 
-  }
+  }*/
+
+    async addCategories(category: CreateCategoryDto): Promise<string> {
+      // Obtener todas las categorías existentes
+      const existingCategories = await this.categoriesRepository.getCategories();
+  
+      // Verificar si la categoría ya existe
+      const categoryExists = existingCategories.some(
+        (existing) => existing.name === category.name,
+      );
+  
+      if (!categoryExists) {
+        // Agregar la categoría si no existe
+        await this.categoriesRepository.addCategories(category);
+        return `Category "${category.name}" added successfully.`;
+      }
+  
+      return `Category "${category.name}" already exists.`;
+    }
+  
 
   async seedCategoriesFromFile (): Promise<string> { // Method to seed categories from a JSON file.
 

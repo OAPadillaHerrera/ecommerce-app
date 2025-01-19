@@ -9,7 +9,7 @@
  
  */
 
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Query, ValidationPipe, UsePipes, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Query, ValidationPipe, UsePipes, Req, Request, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service'; // Service for user-related business logic.
 import { AuthGuard } from '../Auth/AuthGuard'; // Guard for authentication.
 import { ValidateGuard } from 'src/guards/validate.guard'; // Guard for additional validation.
@@ -19,6 +19,7 @@ import { Roles } from 'src/decorators/roles.decorators'; // Decorator for role-b
 import { Role } from 'src/roles.enum'; // Enum for role definitions.
 import { RolesGuard } from 'src/guards/roles.guard'; // Guard for role-based access control.
 import { ApiBearerAuth } from '@nestjs/swagger'; // Swagger decorator for API authentication.
+import { CreateUserDtoAdmin } from './dtos/CreateUserDtoAdmin';
 
 @Controller ('users') // Controller for user routes.
 
@@ -46,22 +47,13 @@ export class UsersController {
 
     @Query ('page') page: string, // Page number query.
     @Query ('limit') limit: string, // Items per page query.
-    /*@Query ('includeisAdmin') includeisAdmin: string, // Filter for admin users.*/
-
+    
   ) {
 
     const pageNumber = parseInt (page, 10) || 1; // Default page number.
     const limitNumber = parseInt(limit, 10) || 5; // Default limit.
     if (isNaN (pageNumber) || pageNumber < 1) throw new Error ('Invalid page number');
     if (isNaN (limitNumber) || limitNumber < 1) throw new Error ('Invalid limit number');
-
-    /*const isAdminFlag = includeisAdmin === 'true'; // Converts string to boolean.
-
-    if (includeisAdmin && includeisAdmin !== 'true' && includeisAdmin !== 'false') {
-
-      throw new Error ('Invalid value for includeisAdmin, expected "true" or "false"');
-
-    }*/
 
     return this.usersService.getPaginatedUsers (pageNumber, limitNumber/*, isAdminFlag*/);
 
@@ -91,6 +83,13 @@ export class UsersController {
 
   }
 
+  @ApiBearerAuth()
+  @Post('/admin') // Ruta específica para crear un usuario admin.
+  @UseGuards(ValidateGuard, RolesGuard) // Guard para proteger la ruta.
+  async createAdminUser(@Body() createUserDtoAdmin: CreateUserDtoAdmin) {
+  return this.usersService.createUserAdmin(createUserDtoAdmin); // Llamada al servicio.
+  }
+    
   @ApiBearerAuth ()
   @Put (':id') // Endpoint: PUT /users/:id
   @UseGuards (AuthGuard, ValidateGuard) // Requires authentication and validation.

@@ -13,6 +13,7 @@ import { InjectRepository } from "@nestjs/typeorm"; // Import InjectRepository t
 import { Users } from "./users.entity"; // Import Users entity for database operations.
 import { Repository } from "typeorm"; // Import Repository to interact with the database.
 import { CreateUserDto } from "./dtos/CreateUserDto"; // Import DTO for user creation validation.
+import { CreateUserDtoAdmin } from "./dtos/CreateUserDtoAdmin";
 
 @Injectable () // Mark this class as injectable for dependency injection.
 
@@ -40,6 +41,16 @@ export class UsersRepository {
   async createUser (userDto: CreateUserDto): Promise<Users> { // Method to create a new user.
 
     const newUser = this.usersRepository.create (userDto); // Create a new user instance from the DTO.
+    return this.usersRepository.save (newUser); // Save the new user to the database.
+
+  }
+
+  async createUserAdmin (userDtoAdmin: CreateUserDtoAdmin): Promise<Users> { // Method to create a new user.
+
+    const newUser = this.usersRepository.create ({... userDtoAdmin, /*isAdmin: true*/ }
+
+
+    ); // Create a new user instance from the DTO.
     return this.usersRepository.save (newUser); // Save the new user to the database.
 
   }
@@ -124,7 +135,7 @@ export class UsersRepository {
     return await this.usersRepository.findOne ({ // Find a user by email.
 
       where: { email }, // Search condition: user email.      
-      select: ['id', 'email', 'password', 'roles'], // Select specific fields for security.
+      select: ['id', 'email', 'password'/*, 'roles'*/], // Select specific fields for security.
 
     });
 

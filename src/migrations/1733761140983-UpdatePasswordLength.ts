@@ -17,4 +17,4 @@ export class UpdatePasswordLength1733761140983 implements MigrationInterface {
 }
 
 
-/*npx ts-node --require tsconfig-paths/register node_modules/typeorm/cli.js migration:run -d dist/config/typeorm.js*/
+

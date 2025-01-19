@@ -23,6 +23,7 @@ import { Role } from 'src/roles.enum'; // Enum for roles.
 import { RolesGuard } from 'src/guards/roles.guard'; // Guard for role-based access.
 import { Roles } from 'src/decorators/roles.decorators'; // Decorator for role-based access control.
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger'; // Swagger decorators.
+import { updateProductDto } from './dtos/UpdateProductDto';
 
 @Controller ('products') // Controller for product routes.
 
@@ -98,7 +99,7 @@ export class ProductsController {
   async updateProduct (
 
     @Param () params: UUIDParamDto, // Product ID parameter.
-    @Body () updateData: createProductDto, // Updated product data.
+    @Body () updateData: updateProductDto, // Updated product data.
 
   ) {
 

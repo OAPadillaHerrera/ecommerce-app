@@ -43,7 +43,7 @@ export class Users {
     password: string; // The user's password. Should be securely hashed in practice. Limited to 20 characters.
 
     @Column ({ type: "boolean", default: false })
-    isAdmin: string; // Indicates whether the user has administrative privileges. Defaults to `false`.
+    isAdmin: boolean; // Indicates whether the user has administrative privileges. Defaults to `false`.
 
     @Column ("int", { nullable: true })
     phone: number; // The user's phone number. 
@@ -57,8 +57,8 @@ export class Users {
     @Column ({ length: 50, nullable: true })
     city?: string | undefined; // The user's city of residence. 
 
-    @Column ("simple-array", { nullable: true })
-    roles: string  []; // A list of roles assigned to the user (e.g., ["admin", "user"]). 
+    /*@Column ("simple-array", { nullable: true })
+    roles: string  []; // A list of roles assigned to the user (e.g., ["admin", "user"]). */
 
     @OneToMany (() => Orders, (orders) => orders.users)
     orders: Orders []; // Defines a one-to-many relationship with the `Orders` entity. One user can have many orders.

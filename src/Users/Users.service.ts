@@ -5,11 +5,12 @@ This file defines the `UsersService` class, which manages user-related operation
 It interacts with the `UsersRepository` to handle database operations and performs additional logic such as hashing passwords.
 */
 
-import { Injectable } from "@nestjs/common"; // Import Injectable decorator from NestJS
+import { ForbiddenException, Injectable } from "@nestjs/common"; // Import Injectable decorator from NestJS
 import { UsersRepository } from "./users.repository"; // Import UsersRepository for database interactions
 import { CreateUserDto } from "./dtos/CreateUserDto"; // Import CreateUserDto for data transfer object validation
 import * as bcrypt from 'bcrypt'; // Import bcrypt for password hashing
 import { Users } from "./users.entity";
+import { CreateUserDtoAdmin } from "./dtos/CreateUserDtoAdmin";
 
 @Injectable ({}) // Mark this class as a service in the NestJS dependency injection system.
 
@@ -42,11 +43,27 @@ export class UsersService {
       const hashedPassword = await bcrypt.hash (password, 10); // Hash the password before storing it.
       const createdUser = await this.usersRepository.createUser ({ ...userData, password: hashedPassword }); // Create user with hashed password.
 
-      const { password: _, name: __, email: ___, isAdmin: ____, phone: _____, country: ______, address: _______, city: ________,  roles: _________, ...userWithoutSensitiveFields } = createdUser
+      const { password: _, name: __, email: ___, isAdmin: ____, phone: _____, country: ______, address: _______, city: ________,  /*roles: _________ ,*/ ...userWithoutSensitiveFields } = createdUser
       return userWithoutSensitiveFields as Users;
 
     }
 
+    async createUserAdmin (user: CreateUserDtoAdmin): Promise<Users> {
+     
+      // Método para crear un nuevo usuario admin.
+
+      const { password, ...userData } = user; // Destructure user data and password.
+      const hashedPassword = await bcrypt.hash (password, 10); // Hash the password before storing it.
+      
+      const createdUserAdmin = await this.usersRepository.createUserAdmin ({ ...userData, password: hashedPassword, isAdmin: true, });// Aquí agregamos isAdmin con valor "admin". }); // Create user with hashed password.
+
+      const { password: _, name: __, email: ___, isAdmin: ____, phone: _____, country: ______, address: _______, city: ________,  /*roles: _________ ,*/ ...userWithoutSensitiveFields } = createdUserAdmin
+      return userWithoutSensitiveFields as Users;
+
+    }
+    
+
+    
     async updateUser (id: string, updateData: Partial<CreateUserDto>): Promise<{ id: string }> { // Method to update a user's data.
 
       const updateUser = this.usersRepository.updateUser (id, updateData); // Call repository to update user.
@@ -75,7 +92,7 @@ export class UsersService {
 
     }
 
-    async getPaginatedUsers (page: number, limit: number, /*includeisAdmin?: boolean*/) { // Method to retrieve paginated users.
+    async getPaginatedUsers (page: number, limit: number) { // Method to retrieve paginated users.
 
         const [users, totalUsers] = await this.usersRepository.getPaginatedUsers (page, limit); // Fetch paginated users.
 
