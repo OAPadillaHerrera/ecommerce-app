@@ -1,7 +1,7 @@
 
 
 /**
- * 
+ 
  * This file defines the `CreateUserDto` class for data validation in user creation.
  * 
  * The class uses `class-validator` decorators to enforce validation rules for user input fields.
@@ -18,9 +18,7 @@ import {
   IsEmail, // Validates the property is a valid email address.
   Length, // Sets constraints on the minimum and maximum length of the property.
   Matches, // Validates the property against a specified regex pattern.
-  IsNumberString,
-  IsArray, // Ensures the property contains only numeric characters.
- 
+  IsNumberString, // Ensures the property contains only numeric characters. 
 
 } from 'class-validator'; // Importing validation decorators from the `class-validator` library.
 
@@ -127,18 +125,5 @@ export class CreateUserDto {
   
   }) // Swagger metadata.
   city?: string; // User's city.
-
-  /*@IsOptional()
-  @IsArray()
-
-  @ApiProperty ({ 
-    
-    description: 'Roles.', 
-    example: 'user' 
-  
-  }) // Swagger metadata.
-
-
-  readonly roles: string[] = ['user'];  // Asignar 'user' por defecto si no se especifica un rol.*/ 
-    
+      
 }

@@ -6,7 +6,7 @@
  * The `AuthController` provides endpoints for user registration (signup) and login (signin).
  * It interacts with the `AuthService` to manage authentication operations and generate JWT tokens.
 
- */
+*/
 
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service'; // Service for authentication logic.

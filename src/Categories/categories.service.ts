@@ -31,44 +31,31 @@ export class CategoriesService {
 
   }
 
-  /*async addCategories (category: { name: string }): Promise<string> { // Method to add a new category.
+  
 
-    const existingCategories = await this.getCategories (); // Get all existing categories.
-    const categoryExists = existingCategories.some ( // Check if the category already exists.
+  async addCategories (category: CreateCategoryDto): Promise<string> {
 
-      (existing) => existing.name === category.name, // Compare by name.
+    // Obtener todas las categorías existentes
+    const existingCategories = await this.categoriesRepository.getCategories ();
+  
+    // Verificar si la categoría ya existe
+    const categoryExists = existingCategories.some (
+
+      (existing) => existing.name === category.name,
 
     );
-
-    if (!categoryExists) { // If the category does not exist.
-
-      await this.categoriesRepository.addCategories (category); // Add the category to the repository.
-      return `Category "${category.name}" added successfully.`; // Return success message.
-
-    }
-
-    return `Category "${category.name}" already exists.`; // Return message if category already exists.
-
-  }*/
-
-    async addCategories(category: CreateCategoryDto): Promise<string> {
-      // Obtener todas las categorías existentes
-      const existingCategories = await this.categoriesRepository.getCategories();
   
-      // Verificar si la categoría ya existe
-      const categoryExists = existingCategories.some(
-        (existing) => existing.name === category.name,
-      );
-  
-      if (!categoryExists) {
-        // Agregar la categoría si no existe
-        await this.categoriesRepository.addCategories(category);
+    if (!categoryExists) {
+
+      // Agregar la categoría si no existe
+      await this.categoriesRepository.addCategories (category);
         return `Category "${category.name}" added successfully.`;
-      }
-  
-      return `Category "${category.name}" already exists.`;
+
     }
   
+    return `Category "${category.name}" already exists.`;
+
+    }  
 
   async seedCategoriesFromFile (): Promise<string> { // Method to seed categories from a JSON file.
 

@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate { // Defines a custom guard implem
 
    canActivate (context: ExecutionContext): boolean {
 
-    const request = context.switchToHttp ().getRequest<Request>(); // Extract the HTTP request object from the execution context.
+    const request = context.switchToHttp ().getRequest<Request> (); // Extract the HTTP request object from the execution context.
 
     if (!request) {
 
@@ -57,14 +57,9 @@ export class AuthGuard implements CanActivate { // Defines a custom guard implem
         secret: process.env.JWT_SECRET, // Secret key from environment variables.
 
       });
+
+      console.log ('Decoded payload in AuthGuard:', payload); 
       
-      // Ensure the payload contains roles.
-      if (!payload.roles || !Array.isArray (payload.roles)) {
-
-        throw new UnauthorizedException ('Token does not contain valid roles'); // Validates roles in the payload.
-
-      }
-
       request ['user'] = payload; // Attach the decoded payload to the request object.
       
       return true; // Grant access if the token is valid.
@@ -86,7 +81,6 @@ export class AuthGuard implements CanActivate { // Defines a custom guard implem
         throw new UnauthorizedException ('An error occurred while verifying the token'); // Handles other errors during verification.
 
       }
-
       
     }
 

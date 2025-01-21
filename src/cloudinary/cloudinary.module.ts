@@ -7,7 +7,7 @@
  * cloud-based media storage, configuration, and related operations, ensuring 
  * smooth interaction with the Cloudinary platform.
 
- */
+*/
 
 import { Module } from '@nestjs/common'; // Importing the NestJS module decorator.
 import { CloudinaryService } from './cloudinary.service'; // The service that handles business logic for Cloudinary operations.

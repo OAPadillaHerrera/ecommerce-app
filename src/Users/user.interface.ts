@@ -10,7 +10,7 @@
  * throughout the application to ensure consistency in
  * how user data is managed and accessed.
  
- */
+*/
 
 export interface User {
 
@@ -18,11 +18,11 @@ export interface User {
     email: string; // User's email address, commonly used for login and notifications.
     name: string; // Full name of the user.
     password: string; // Hashed password for secure authentication.
+    isAdmin: boolean;
     address: string; // User's residential address.
     phone: string; // Contact phone number of the user.
     country: string; // Country of residence.
     city: string; // City of residence.
-    roles: string []; // List of roles assigned to the user (e.g., admin, user).
-
+    
 }
 

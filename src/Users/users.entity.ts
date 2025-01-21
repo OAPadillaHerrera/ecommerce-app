@@ -1,7 +1,7 @@
 
 
 /**
- * 
+ 
  * This file defines the `Users` entity for the database using TypeORM.
  *
  * The `Users` entity maps the structure of the `users` table in the database.
@@ -57,10 +57,8 @@ export class Users {
     @Column ({ length: 50, nullable: true })
     city?: string | undefined; // The user's city of residence. 
 
-    /*@Column ("simple-array", { nullable: true })
-    roles: string  []; // A list of roles assigned to the user (e.g., ["admin", "user"]). */
-
     @OneToMany (() => Orders, (orders) => orders.users)
     orders: Orders []; // Defines a one-to-many relationship with the `Orders` entity. One user can have many orders.
+  
     
 }

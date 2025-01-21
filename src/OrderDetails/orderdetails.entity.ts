@@ -8,7 +8,7 @@
  * It tracks the details of an order, including the associated products, price, 
  * and the relationship with the `Orders` entity.
  
- */
+*/
 
 import { Orders } from "../Orders/orders.entity"; // Importing the `Orders` entity to define the one-to-one relationship with an order.
 

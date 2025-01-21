@@ -9,8 +9,7 @@
  * price, stock availability, and relationships with other entities like 
  * `Categories` and `OrderDetails`.
  
- */
-
+*/
 
 import { OrderDetails } from "../OrderDetails/orderdetails.entity"; // Importing the `OrderDetails` entity to establish a many-to-many relationship with the `Products` entity.
 import { Categories } from "../Categories/categories.entity"; // Importing the `Categories` entity to establish a many-to-one relationship with the `Products` entity.
@@ -49,7 +48,7 @@ export class Products {
 
     @ManyToMany (() => OrderDetails, (orderDetails) => orderDetails.products)
     @JoinTable ()
-    orderDetails: OrderDetails[]; // Defines a many-to-many relationship with the `OrderDetails` entity.
+    orderDetails: OrderDetails []; // Defines a many-to-many relationship with the `OrderDetails` entity.
                                   // Each product can appear in multiple order details, and each order detail can include multiple products.
                                   
 }

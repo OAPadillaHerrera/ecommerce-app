@@ -7,7 +7,7 @@
  * interactions, business logic, and API endpoints while ensuring modularity 
  * and reusability across the application.
  
- */
+*/
 
 import { Module } from '@nestjs/common'; // Importing NestJS module decorator.
 import { TypeOrmModule } from '@nestjs/typeorm'; // Importing TypeORM integration for database handling.

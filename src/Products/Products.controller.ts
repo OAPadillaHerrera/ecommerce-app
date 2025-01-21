@@ -7,7 +7,7 @@
  * and uploading product images. The controller includes authentication, validation, and role-based access 
  * control for secure operations.
  
- */
+*/
 
 import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ProductsService } from './products.service'; // Service for product-related business logic.
@@ -23,7 +23,8 @@ import { Role } from 'src/roles.enum'; // Enum for roles.
 import { RolesGuard } from 'src/guards/roles.guard'; // Guard for role-based access.
 import { Roles } from 'src/decorators/roles.decorators'; // Decorator for role-based access control.
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger'; // Swagger decorators.
-import { updateProductDto } from './dtos/UpdateProductDto';
+import { updateProductDto } from './dtos/UpdateProductDto'; // Import the DTO (Data Transfer Object) used for updating product details
+
 
 @Controller ('products') // Controller for product routes.
 
@@ -45,7 +46,6 @@ export class ProductsController {
 
   @ApiBearerAuth ()
   @Get () // Endpoint: GET /products with pagination.
-  /*@UseGuards (AuthGuard) // Requires authentication.*/
 
   async getPaginatedProducts (
 
@@ -121,7 +121,6 @@ export class ProductsController {
 
   @Post ('/seeder') // Endpoint: POST /products/seeder.
   @UseGuards (AuthGuard) // Requires authentication.
-
 
   async seedProducts () {
 

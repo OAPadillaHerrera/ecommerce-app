@@ -1,7 +1,7 @@
 
 
 /**
- * 
+ 
  * This file defines the `CreateUserDto` class for data validation in user creation.
  * 
  * The class uses `class-validator` decorators to enforce validation rules for user input fields.
@@ -10,6 +10,7 @@
 */
 
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger'; // Decorator for documenting API models and properties.
+
 import {
 
   IsOptional, // Marks a property as optional during validation.
@@ -18,8 +19,7 @@ import {
   IsEmail, // Validates the property is a valid email address.
   Length, // Sets constraints on the minimum and maximum length of the property.
   Matches, // Validates the property against a specified regex pattern.
-  IsNumberString,
-  IsArray,
+  IsNumberString,  
   IsBoolean,
   IsEmpty, // Ensures the property contains only numeric characters.
  
@@ -79,16 +79,11 @@ export class CreateUserDtoAdmin {
   }) // Swagger metadata.
   confirmPassword?: string; // Confirmation for user's password.
 
-  @IsOptional()
-  @IsBoolean()
-  @IsEmpty ()
-  @ApiHideProperty (/*{ 
-    
-    description: 'Admimistrator.', 
-    example: 'true' 
-  
-  }*/) // Swagger metadata.
-  isAdmin?: boolean;
+  @IsOptional () // The `isAdmin` field is optional and typically managed internally.
+  @IsBoolean () // Ensures the field is a boolean value.
+  @IsEmpty () // Prevents external users from setting this field.
+  @ApiHideProperty () // Hides the field from Swagger documentation.
+  isAdmin?: boolean; // Flag indicating if the user has admin privileges.
   
   @IsOptional () // The `address` field is optional.
   @IsNotEmpty ({ message: 'Address is required.' }) // If provided, it cannot be empty.
@@ -141,17 +136,4 @@ export class CreateUserDtoAdmin {
   }) // Swagger metadata.
   city?: string; // User's city.
 
-  /*@IsOptional()
-  @IsArray()
-
-  @ApiProperty ({ 
-    
-    description: 'Roles.', 
-    example: 'user' 
-  
-  }) // Swagger metadata.
-
-
-readonly roles: string [] = ['user'];  // Asignar 'user' por defecto si no se especifica un rol.*/  
-  
 }

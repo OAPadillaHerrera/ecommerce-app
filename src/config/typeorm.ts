@@ -1,7 +1,7 @@
 
 
 /**
- * 
+ 
  * This file defines the TypeORM configuration for database connectivity. 
  * It loads environment variables, sets up database connection options, 
  * and initializes the TypeORM data source for use in the application.
@@ -23,10 +23,10 @@ const typeOrmConfigOptions: DataSourceOptions = {
   database: process.env.DB_NAME, // Name of the database.
   synchronize: false, // Disables auto-sync; use migrations instead for production safety.
   logging: true, // Enables query logging for debugging.
-  entities: [/*Categories, OrderDetails, Users, Products, Orders*/'dist/**/*.entity{.ts,.js}'], // Entities registered for this data source.
-  migrations: process.env.NODE_ENV === 'development'
-  ? ['src/migrations/*.ts']
-  : ['dist/migrations/*.js'],
+  entities: ['dist/**/*.entity{.ts,.js}'], // Entities registered for this data source.  
+  migrations: process.env.NODE_ENV === 'development' 
+  ? ['src/migrations/*.ts'] // If the environment is 'development', use the TypeScript migration files located in the 'src/migrations' folder.
+  : ['dist/migrations/*.js'], // If the environment is not 'development' (e.g., 'production'), use the compiled JavaScript migration files located in the 'dist/migrations' folder.
 
 };
 
@@ -40,5 +40,5 @@ export const typeOrmConfig = () => ({
   
 });
 
-/*npm run typeorm:generate -- src/migrations/RemoveRolesColumnFromUsers -d dist/config/typeorm.js*/
+
 

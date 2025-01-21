@@ -38,14 +38,14 @@ export class RolesGuard implements CanActivate {
      * @param context - The execution context for the current request.
      * @returns `true` if the user has the required roles, otherwise throws an exception.
     
-    */
+    */    
 
     canActivate (context: ExecutionContext): boolean {
-      
-        // Retrieve the required roles from metadata on the route or controller.
-        const requiredRoles = this.reflector.getAllAndOverride<Role []> ("roles", [
 
-            context.getHandler (), // Method-specific metadata.
+        // Retrieve the required roles from metadata on the route or controller.
+        const requiredRoles = this.reflector.getAllAndOverride<Role []>('roles', [
+
+            context.getHandler (), // Method-level metadata.
             context.getClass (),   // Controller-level metadata.
 
         ]);
@@ -60,24 +60,31 @@ export class RolesGuard implements CanActivate {
         const request = context.switchToHttp ().getRequest ();
         const user = request.user;
 
-        // Check if the user has at least one of the required roles.
-        const hasRole = () =>
+        // Check if the user has the required role (in this case, administrator) using isAdmin.
+        const hasRole = () => {
 
-            requiredRoles.some ((role) => user?.roles?.includes (role)); // Roles is expected to be an array.
-            const valid = user && user.roles && hasRole ();
+            if (requiredRoles.includes (Role.Admin)) { // Role.Admin is the role for administrators.
+
+             return user?.isAdmin === true; // Check isAdmin.
+
+         }
+
+            return false; // Deny access if the role is not admin.
+        };
+
+        const valid = user && hasRole ();
 
         if (!valid) {
 
-            // Throw an exception if the user lacks the necessary role.
+            // Throw an exception if the user lacks the required role.
             throw new ForbiddenException (
 
-                "Denied access: Do not have needed role to access this route."
+                'Denied access: Do not have needed role to access this route.'
 
             );
-
         }
 
-        return valid; // Grant access if the user's roles are valid.
+        return valid; // Grant access if the user's role is valid.
 
     }
 

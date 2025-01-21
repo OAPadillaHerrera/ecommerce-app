@@ -33,7 +33,7 @@ export class FileValidationPipe implements PipeTransform {
     // Check if the file is provided.
     if (!file) {
 
-      throw new BadRequestException('No file has been provided');
+      throw new BadRequestException ('No file has been provided');
 
     }
   
@@ -43,7 +43,7 @@ export class FileValidationPipe implements PipeTransform {
 
       throw new BadRequestException (
 
-        `The file exceeds the maximum allowed size of 200 KB. Received size: ${(file.size / 1024).toFixed(2)} KB`,
+        `The file exceeds the maximum allowed size of 200 KB. Received size: ${(file.size / 1024).toFixed (2)} KB`,
 
       );
 
@@ -55,12 +55,11 @@ export class FileValidationPipe implements PipeTransform {
 
       throw new BadRequestException (
 
-        `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,
+        `Invalid file type. Allowed types: ${allowedMimeTypes.join (', ')}`,
 
       );
 
     }
-
     
     return file; // Return the file if it passes all validations.
 

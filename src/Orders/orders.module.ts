@@ -8,7 +8,7 @@
  * - Managing database operations for the `Orders` table and related entities (`Users`, `Products`, `OrderDetails`).
  * - Encapsulating business logic for processing orders within the `OrdersService`.
  
- */
+*/
 
 import { Module } from "@nestjs/common"; // Import the decorator for defining a NestJS module.
 import { TypeOrmModule } from "@nestjs/typeorm"; // Import TypeORM module for database integration.

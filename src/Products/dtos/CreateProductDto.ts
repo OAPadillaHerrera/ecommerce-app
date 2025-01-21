@@ -8,7 +8,7 @@
  * and `@ApiProperty` decorators to enhance Swagger API documentation. Each property is optional
  * but includes validation constraints for ensuring correctness and consistency.
  
- */
+*/
 
 import { ApiProperty } from '@nestjs/swagger'; // Decorator for adding metadata to Swagger API documentation.
 
@@ -20,13 +20,12 @@ import {
   IsUrl, // Validates that a property is a valid URL.
   IsInt, // Validates that a property is an integer.
   Min, // Ensures that a number is greater than or equal to a specified minimum.
-  IsPositive,
+  IsPositive, // Validates that the value is a positive number.
 
 } from 'class-validator'; // Library for applying validation rules to DTOs.
 
 export class createProductDto {
 
-  /*@IsOptional () // This field is optional for requests.*/
   @IsString () // Ensures that the `name` field, if provided, is a string.
 
   // Adds metadata for Swagger documentation with a description and example.
@@ -36,9 +35,8 @@ export class createProductDto {
     example: 'Laptop',
 
   }) 
-  name/*?*/: string; // Product name.
+  name: string; // Product name.
 
-  /*@IsOptional () // This field is optional for requests.*/
   @IsString () // Ensures that the `description` field, if provided, is a string.
 
   // Adds metadata for Swagger documentation with a description and example.
@@ -48,9 +46,8 @@ export class createProductDto {
     example: 'A high performance laptop for professionals.',
 
   }) 
-  description/*?*/: string; // Product description.
+  description: string; // Product description.
 
-  /*@IsOptional () // This field is optional for requests.*/
   @IsNumber () // Ensures that the `price` field, if provided, is a number.
   @IsPositive () // Ensures the `price` is a positive number.
 
@@ -62,9 +59,8 @@ export class createProductDto {
     example: 1500.99,
 
   }) 
-  price/*?*/: number; // Product price.
+  price: number; // Product price.
 
-  /*@IsOptional () // This field is optional for requests.*/
   @IsInt () // Ensures that the `stock` field, if provided, is an integer.
   @Min (0) // Ensures that the `stock` is 0 or greater.
 
@@ -75,9 +71,9 @@ export class createProductDto {
     example: 25,
 
   }) 
-  stock/*?*/: number; // Quantity available in inventory.
+  stock: number; // Quantity available in inventory.
 
-  @IsOptional () // This field is optional for requests.*/
+  @IsOptional () // This field is optional for requests.
   @IsUrl () // Ensures that the `imgUrl` field, if provided, is a valid URL.
 
   // Adds metadata for Swagger documentation with a description and example.
@@ -89,7 +85,6 @@ export class createProductDto {
   }) 
   imgUrl?: string; // URL of the product's image.
 
-  /*@IsOptional () // This field is optional for requests.*/
   @IsString () // Ensures that the `categories` field, if provided, is a string.
 
   // Adds metadata for Swagger documentation with a description and example.
@@ -99,6 +94,6 @@ export class createProductDto {
     example: 'Electronics'
 
   }) 
-  categories/*?*/: string; // Product category name.
+  categories: string; // Product category name.
   
 }

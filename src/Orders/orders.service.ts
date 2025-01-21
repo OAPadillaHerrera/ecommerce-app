@@ -80,17 +80,17 @@ export class OrdersService {
     return { // Build and return the filtered new order response.
 
       id: newOrder.id, // New order ID.
-      date: newOrder.date, // Order date.
+      /*date: newOrder.date, // Order date.*/
       totalPrice: newOrder.totalPrice, // Total price of the order.
       orderDetailsId: newOrder.orderDetailsId, // Order details ID.
-      users: filteredUser, // Filtered user details.
+      /*users: filteredUser, // Filtered user details.*/
 
-      orderDetails: { // Filtered order details.
+      /*orderDetails: { // Filtered order details.
         id: newOrder.orderDetails.id, // Order details ID.
         price: newOrder.orderDetails.price, // Price from order details.
         products: filteredProducts, // Products in the order.
 
-      },
+      },*/
 
     };
 

@@ -9,7 +9,7 @@
  * - Integrating user-related operations for authentication.
  * - Providing API endpoints for login, signup, and token verification.
  
- */
+*/
 
 import { Module } from '@nestjs/common'; // Import the decorator for defining a NestJS module.
 import { AuthService } from './auth.service'; // Import the service for handling authentication logic.

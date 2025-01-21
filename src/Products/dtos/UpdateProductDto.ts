@@ -8,7 +8,7 @@
  * and `@ApiProperty` decorators to enhance Swagger API documentation. Each property is optional
  * but includes validation constraints for ensuring correctness and consistency.
  
- */
+*/
 
 import { ApiProperty} from '@nestjs/swagger'; // Decorator for adding metadata to Swagger API documentation.
 
@@ -20,8 +20,7 @@ import {
   IsUrl, // Validates that a property is a valid URL.
   IsInt, // Validates that a property is an integer.
   Min, // Ensures that a number is greater than or equal to a specified minimum.
-  IsPositive,
-  
+  IsPositive,  // Validates that the value is a positive number.
 
 } from 'class-validator'; // Library for applying validation rules to DTOs.
 
@@ -54,7 +53,6 @@ export class updateProductDto {
   @IsOptional () // This field is optional for requests.
   @IsNumber () // Ensures that the `price` field, if provided, is a number.
   @IsPositive () // Ensures the `price` is a positive number.
-
 
   // Adds metadata for Swagger documentation with a description and example.
   @ApiProperty ({

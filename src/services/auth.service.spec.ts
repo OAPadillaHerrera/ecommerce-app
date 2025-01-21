@@ -32,8 +32,7 @@ describe ("authService", () => {
         country: "Portugal", // Mock user country.
         city: "Lisboa", // Mock user city.
         password: "Password123!", // Mock user password (plaintext, to be hashed later).
-        isAdmin: "t", // Mock user admin status.
-        roles: [], // Mock user roles (empty array).
+        isAdmin: true, // Mock user admin status.
         orders: [] // Mock user orders (empty array).
 
     };
@@ -85,6 +84,7 @@ describe ("authService", () => {
                     useValue: mockUsersRepository,
         
                 },
+                
                 {
 
                     provide: UsersService, // Provide mocked UsersService.
@@ -102,7 +102,7 @@ describe ("authService", () => {
 
     it ("Create an instance of AuthService", async () => {
 
-        expect (authService).toBeDefined(); // Ensure AuthService is defined.
+        expect (authService).toBeDefined (); // Ensure AuthService is defined.
 
     });
 

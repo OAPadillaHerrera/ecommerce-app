@@ -47,7 +47,7 @@ export class UsersRepository {
 
   async createUserAdmin (userDtoAdmin: CreateUserDtoAdmin): Promise<Users> { // Method to create a new user.
 
-    const newUser = this.usersRepository.create ({... userDtoAdmin, /*isAdmin: true*/ }
+    const newUser = this.usersRepository.create ({... userDtoAdmin }
 
 
     ); // Create a new user instance from the DTO.
@@ -60,7 +60,7 @@ export class UsersRepository {
 
     if (!user) { // If user is not found.
 
-      throw new Error(`User with ID ${id} not found`); // Throw an error.
+      throw new Error (`User with ID ${id} not found`); // Throw an error.
 
     }
 
@@ -135,7 +135,7 @@ export class UsersRepository {
     return await this.usersRepository.findOne ({ // Find a user by email.
 
       where: { email }, // Search condition: user email.      
-      select: ['id', 'email', 'password'/*, 'roles'*/], // Select specific fields for security.
+      select: ['id', 'email', 'password', 'isAdmin'], // Select specific fields for security.
 
     });
 

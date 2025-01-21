@@ -23,7 +23,7 @@ export class CategoriesRepository {
 
   ) {}
 
-  async getCategories (): Promise<Categories[]> { // Method to fetch all categories.
+  async getCategories (): Promise<Categories []> { // Method to fetch all categories.
 
     return this.categoriesRepository.find (); // Use the TypeORM repository to fetch all records.
 

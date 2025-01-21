@@ -9,7 +9,7 @@
  * pricing, stock, and categorization. It is used to ensure 
  * consistency in how product data is created, stored, and accessed.
  
- */
+*/
 
 export interface Product {
 

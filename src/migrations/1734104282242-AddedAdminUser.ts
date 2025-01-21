@@ -1,3 +1,5 @@
+
+
 import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddedAdminUser1734104282242 implements MigrationInterface {

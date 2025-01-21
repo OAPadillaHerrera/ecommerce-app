@@ -47,59 +47,27 @@ export class AuthService {
       throw new UnauthorizedException( 'Invalid Email or Password'); // Throw an unauthorized exception.
 
     }
-
-    /*let roles = Array.isArray (user.roles) ? user.roles : []; // Ensure roles is an array.
-
-    if (typeof user.roles === 'string') { // If roles is a string.
-
-      try {
-
-        roles = JSON.parse (user.roles); // Parse roles as JSON.
-
-        if (!Array.isArray (roles)) { // Validate roles is an array.
-
-          throw new UnauthorizedException ('Error in the roles format'); // Throw an error if roles is not an array.
-
-        }
-
-      } catch (error) {
-
-        throw new UnauthorizedException ('Error at proccessing the roles format'); // Handle JSON parsing errors.
-
-      }
-    }
-
-    if (roles.length === 1 && typeof roles [0] === 'string') { // Handle specific roles format.
-
-      try {
-
-        roles = JSON.parse (roles [0]); // Parse inner JSON string.
-
-      } catch (error) {
-
-        throw new UnauthorizedException ('Error at processing the roles format'); // Handle parsing errors.
-
-      }
-
-    }*/
-
+    
     let isAdmin: boolean; // Ensure isAdmin is a boolean.
 
     if (typeof user.isAdmin === 'string') { // If isAdmin is a string.
 
       isAdmin = user.isAdmin === 't'; // Convert 't' to true, 'f' to false.
 
+      console.log (isAdmin);
+
     } else {
 
-      isAdmin = user.isAdmin === true; // Otherwise, use as boolean.
+      isAdmin = /*isAdmin === true*/!!user.isAdmin; // Otherwise, use as boolean.
 
     }
 
     const payload = { // Create JWT payload.
+      
       sub: user.id, // Include user ID as 'sub'.
       email: user.email, // Include user email.
-      /*roles: roles, // Include roles array.*/
-      isAdmin: isAdmin, // Include isAdmin flag.
+      isAdmin: isAdmin, // Include isAdmin.
+      
 
     };
 

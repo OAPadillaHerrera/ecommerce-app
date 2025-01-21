@@ -9,7 +9,7 @@
  
  */
 
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Query, ValidationPipe, UsePipes, Req, Request, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Query, ValidationPipe, UsePipes, Req } from '@nestjs/common';
 import { UsersService } from './users.service'; // Service for user-related business logic.
 import { AuthGuard } from '../Auth/AuthGuard'; // Guard for authentication.
 import { ValidateGuard } from 'src/guards/validate.guard'; // Guard for additional validation.
@@ -29,8 +29,7 @@ export class UsersController {
 
   @ApiBearerAuth ()
   @Get ('/all') // Endpoint: GET /users/all.
-  @UseGuards (AuthGuard, RolesGuard) // Requires authentication.
-  @Roles(Role.Admin) // // Requires Admin role.
+  @UseGuards (AuthGuard) // Requires authentication.
 
   async getUsers () {
 
@@ -60,12 +59,11 @@ export class UsersController {
   }
 
   @ApiBearerAuth ()
-
   @Get (':id') // Endpoint: GET /users/:id.
   @UseGuards (AuthGuard) // Requires authentication.
-  @UsePipes (new ValidationPipe()) // Validates incoming parameters.
+  @UsePipes (new ValidationPipe ()) // Validates incoming parameters.
 
-  async getUserById (@Req() req: any, @Param() params: UUIDParamDto) {
+  async getUserById (@Req () req: any, @Param () params: UUIDParamDto) {
 
     const payloadUser = req.user; // Retrieves authenticated user payload.
     const dbUser = await this.usersService.getUserById (params.id); // Fetches user by ID.
@@ -75,25 +73,29 @@ export class UsersController {
 
   @ApiBearerAuth ()
   @Post ('/all') // Endpoint: POST /users/all.
-  @UseGuards (/*AuthGuard,*/ ValidateGuard) // Requires authentication and validation.
+  @UseGuards (ValidateGuard) // Requires validation.
 
-  async createUser (@Body() createUserDto: CreateUserDto) {
+  async createUser (@Body () createUserDto: CreateUserDto) {
 
     return this.usersService.createUser (createUserDto); // Creates a new user.
 
   }
 
-  @ApiBearerAuth()
-  @Post('/admin') // Ruta específica para crear un usuario admin.
-  @UseGuards(ValidateGuard, RolesGuard) // Guard para proteger la ruta.
-  async createAdminUser(@Body() createUserDtoAdmin: CreateUserDtoAdmin) {
-  return this.usersService.createUserAdmin(createUserDtoAdmin); // Llamada al servicio.
+  @ApiBearerAuth ()
+  @Post ('/admin') // Endpoint: POST /users/admin.
+  @UseGuards (AuthGuard, ValidateGuard, RolesGuard) // Requires validations.
+  @Roles(Role.Admin) // Only accessible for 'admin' role.
+
+  async createAdminUser (@Body () createUserDtoAdmin: CreateUserDtoAdmin) { 
+
+  return this.usersService.createUserAdmin (createUserDtoAdmin);  
+
   }
     
   @ApiBearerAuth ()
   @Put (':id') // Endpoint: PUT /users/:id
-  @UseGuards (AuthGuard, ValidateGuard) // Requires authentication and validation.
-  @UsePipes (new ValidationPipe()) // Validates incoming parameters.
+  @UseGuards (AuthGuard, ValidateGuard) // Requires authentication and validation. 
+  @UsePipes (new ValidationPipe ()) // Validates incoming parameters.
 
   async updateUser ( 
     
@@ -109,7 +111,7 @@ export class UsersController {
   @ApiBearerAuth ()
   @Delete (':id') // Endpoint: DELETE /users/:id.
   @UseGuards (AuthGuard) // Requires authentication.
-  @UsePipes (new ValidationPipe()) // Validates incoming parameters.
+  @UsePipes (new ValidationPipe ()) // Validates incoming parameters.
 
   async deleteUser (@Param () params: UUIDParamDto) {
 
@@ -118,8 +120,7 @@ export class UsersController {
   }
 
   @Get (':id/orders') // Endpoint: GET /users/:id/orders.
-  /*@UseGuards (AuthGuard) // Requires authentication.*/
-  @UsePipes (new ValidationPipe()) // Validates incoming parameters.
+  @UsePipes (new ValidationPipe ()) // Validates incoming parameters.
 
   async getUserWithOrders (@Param () params: UUIDParamDto): Promise<any> {
 
@@ -128,5 +129,5 @@ export class UsersController {
   }
 
 }
-
+    
 

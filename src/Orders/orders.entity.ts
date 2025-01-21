@@ -8,7 +8,7 @@
  * It includes fields for tracking the order's date, total price, 
  * and relationships with the `Users` and `OrderDetails` entities.
  
- */
+*/
 
 import { OrderDetails } from "../OrderDetails/orderdetails.entity"; // Importing the `OrderDetails` entity to define relationships for tracking detailed information of orders.
 
