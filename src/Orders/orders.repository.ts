@@ -168,6 +168,19 @@ export class OrdersRepository {
 
   }
 
+  async findOrderById (id: string): Promise<Orders | null> {
+    
+    return this.ordersRepository.findOne ({ where: { id } });
+    
+  }
+  
+  async saveOrder (order: Orders): Promise<Orders> {
+
+    return this.ordersRepository.save (order);
+  
+  }
+  
+  
 }
 
       

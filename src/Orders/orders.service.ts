@@ -95,6 +95,24 @@ export class OrdersService {
     };
 
   }
+
+  async orderDelete (id: string): Promise<{ id: string }> {
+
+    const order = await this.ordersRepository.findOrderById (id);
+  
+    if (!order) {
+
+      throw new Error ('Order not found'); 
+
+    }
+
+    order.activa = false;
+  
+    const updatedOrder = await this.ordersRepository.saveOrder (order);
+  
+    return { id: updatedOrder.id };
+
+  }
   
 }
 

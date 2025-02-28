@@ -8,7 +8,7 @@
  
 */
 
-import { Controller, Get, Post, Body, Param, BadRequestException, ParseUUIDPipe, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, BadRequestException, ParseUUIDPipe, UseGuards, Put } from "@nestjs/common";
 
 import { OrdersService } from "./orders.service"; // Service for order-related business logic.
 import { CreateOrderDto, validateProducts } from "./dtos/CreateOrderDto"; // DTO and validation for orders.
@@ -53,6 +53,16 @@ export class OrdersController {
       throw new BadRequestException (error.message); // Handles validation errors.
 
     }
+
+  }
+
+  @ApiBearerAuth ()
+  @Put ('estado/:id') 
+  @UseGuards (AuthGuard) 
+
+  async orderDelete (@Param ('id', ParseUUIDPipe) id: string): Promise<any> {
+
+    return this.ordersService.orderDelete (id); 
 
   }
 

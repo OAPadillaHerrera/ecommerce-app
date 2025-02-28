@@ -35,6 +35,9 @@ export class Orders {
     @Column ({ type: 'decimal', precision: 10, scale: 2 })
     totalPrice: number; // Total price of the order, represented with up to 10 digits and 2 decimal places.
 
+    @Column({ type: 'boolean', default: true })
+    activa: boolean; // Represents whether the item is active or not. })    
+
     @Column ({ nullable: true })
     orderDetailsId: string; // Explicit column to store the ID of the related order details entity. 
 
