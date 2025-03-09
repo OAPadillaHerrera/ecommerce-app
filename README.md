@@ -1,3 +1,3 @@
 
 
-Aplicación Web para un E-commerce.
+Desarrollo de una Aplicación Web para un E-commerce.
